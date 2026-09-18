@@ -81,3 +81,38 @@ export const getOrderById = (req, res) => {
 
   res.json(order);
 };
+
+// Update order status
+export const updateOrderStatus = (req, res) => {
+  const id = Number(req.params.id);
+  const { status } = req.body;
+
+  const allowedStatuses = [
+    "pending",
+    "preparing",
+    "ready",
+    "completed",
+    "cancelled",
+  ];
+
+  const order = orders.find((order) => order.id === id);
+
+  if (!order) {
+    return res.status(404).json({
+      message: "Order not found",
+    });
+  }
+
+  if (!allowedStatuses.includes(status)) {
+    return res.status(400).json({
+      message: "Invalid order status",
+    });
+  }
+
+  order.status = status;
+
+  res.json({
+    message: "Order status updated successfully",
+    order,
+  });
+};

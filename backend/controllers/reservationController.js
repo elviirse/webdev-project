@@ -57,3 +57,31 @@ export const getReservationById = (req, res) => {
 
   res.json(reservation);
 };
+// Update reservation status
+export const updateReservationStatus = (req, res) => {
+  const id = Number(req.params.id);
+  const { status } = req.body;
+
+  const allowedStatuses = ["pending", "confirmed", "cancelled", "completed"];
+
+  const reservation = reservations.find((reservation) => reservation.id === id);
+
+  if (!reservation) {
+    return res.status(404).json({
+      message: "Reservation not found",
+    });
+  }
+
+  if (!allowedStatuses.includes(status)) {
+    return res.status(400).json({
+      message: "Invalid reservation status",
+    });
+  }
+
+  reservation.status = status;
+
+  res.json({
+    message: "Reservation status updated successfully",
+    reservation,
+  });
+};

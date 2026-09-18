@@ -4,6 +4,7 @@ import {
   createReservation,
   getAllReservations,
   getReservationById,
+  updateReservationStatus,
 } from "../controllers/reservationController.js";
 
 const router = express.Router();
@@ -16,5 +17,6 @@ router.get("/", getAllReservations);
 
 // Get one reservation by ID
 router.get("/:id", getReservationById);
+router.patch("/:id/status", updateReservationStatus);
 
 export default router;
