@@ -7,9 +7,16 @@ export const createReservation = (req, res) => {
   const { customerId, date, time, numberOfGuests, specialRequests } = req.body;
 
   // Basic validation
-  if (!customerId || !date || !time || !numberOfGuests) {
+  if (
+    !customerId ||
+    Number(customerId) < 1 ||
+    !date ||
+    !time ||
+    numberOfGuests === undefined
+  ) {
     return res.status(400).json({
-      message: "Customer ID, date, time and number of guests are required",
+      message:
+        "Valid customer ID, date, time and number of guests are required",
     });
   }
 
@@ -43,9 +50,15 @@ export const getAllReservations = (req, res) => {
   res.json(reservations);
 };
 
-// Get one reservation by ID
+// Get reservation by ID
 export const getReservationById = (req, res) => {
   const id = Number(req.params.id);
+
+  if (!Number.isInteger(id) || id < 1) {
+    return res.status(400).json({
+      message: "Invalid reservation ID",
+    });
+  }
 
   const reservation = reservations.find((reservation) => reservation.id === id);
 
@@ -60,7 +73,13 @@ export const getReservationById = (req, res) => {
 // Update reservation status
 export const updateReservationStatus = (req, res) => {
   const id = Number(req.params.id);
-  const { status } = req.body;
+  const { status } = req.body || {};
+
+  if (!Number.isInteger(id) || id < 1) {
+    return res.status(400).json({
+      message: "Invalid reservation ID",
+    });
+  }
 
   const allowedStatuses = ["pending", "confirmed", "cancelled", "completed"];
 

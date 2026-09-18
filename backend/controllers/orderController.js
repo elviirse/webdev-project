@@ -8,9 +8,14 @@ let nextOrderId = 1;
 export const createOrder = (req, res) => {
   const { customerId, items, pickupTime } = req.body;
 
-  if (!customerId || !items || !Array.isArray(items) || items.length === 0) {
+  if (
+    !customerId ||
+    Number(customerId) < 1 ||
+    !Array.isArray(items) ||
+    items.length === 0
+  ) {
     return res.status(400).json({
-      message: "Customer ID and order items are required",
+      message: "Valid customer ID and at least one order item are required",
     });
   }
 
@@ -70,6 +75,11 @@ export const getAllOrders = (req, res) => {
 // Get order by ID
 export const getOrderById = (req, res) => {
   const id = Number(req.params.id);
+  if (!Number.isInteger(id) || id < 1) {
+    return res.status(400).json({
+      message: "Invalid order ID",
+    });
+  }
 
   const order = orders.find((order) => order.id === id);
 
@@ -85,7 +95,13 @@ export const getOrderById = (req, res) => {
 // Update order status
 export const updateOrderStatus = (req, res) => {
   const id = Number(req.params.id);
-  const { status } = req.body;
+  const { status } = req.body || {};
+
+  if (!Number.isInteger(id) || id < 1) {
+    return res.status(400).json({
+      message: "Invalid order ID",
+    });
+  }
 
   const allowedStatuses = [
     "pending",
