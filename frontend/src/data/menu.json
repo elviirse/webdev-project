@@ -1,0 +1,93 @@
+[
+  {
+    "id": 1,
+    "day": "Monday",
+    "name": "Salmon Tikka & Dill Potatoes",
+    "description": "Finnish salmon marinated with Indian spices, served with roasted dill potatoes and seasonal vegetables.",
+    "price": 18.90,
+    "dietary": ["GF", "LF"],
+    "allergens": ["Fish"],
+    "ingredients": [
+      "Finnish salmon",
+      "Potatoes",
+      "Fresh dill",
+      "Lemon",
+      "Garam masala",
+      "Garlic",
+      "Seasonal vegetables"
+    ]
+  },
+  {
+    "id": 2,
+    "day": "Tuesday",
+    "name": "Butter Chicken & Basmati Rice",
+    "description": "Tender chicken cooked in a creamy tomato and Indian spice sauce, served with fragrant basmati rice.",
+    "price": 17.90,
+    "dietary": ["GF"],
+    "allergens": ["Milk"],
+    "ingredients": [
+      "Chicken",
+      "Basmati rice",
+      "Tomato",
+      "Cream",
+      "Butter",
+      "Garam masala",
+      "Ginger",
+      "Garlic"
+    ]
+  },
+  {
+    "id": 3,
+    "day": "Wednesday",
+    "name": "Masala Lohikeitto",
+    "description": "A Finnish salmon soup inspired by Indian spices, with potatoes, leek, dill and a gently spiced creamy broth.",
+    "price": 18.50,
+    "dietary": ["GF"],
+    "allergens": ["Fish", "Milk"],
+    "ingredients": [
+      "Finnish salmon",
+      "Potatoes",
+      "Leek",
+      "Cream",
+      "Fresh dill",
+      "Turmeric",
+      "Cumin"
+    ]
+  },
+  {
+    "id": 4,
+    "day": "Thursday",
+    "name": "Palak Paneer & Roasted Potatoes",
+    "description": "Indian cottage cheese in a spiced spinach sauce, served with Finnish roasted potatoes.",
+    "price": 16.90,
+    "dietary": ["V", "GF"],
+    "allergens": ["Milk"],
+    "ingredients": [
+      "Paneer",
+      "Spinach",
+      "Finnish potatoes",
+      "Tomato",
+      "Onion",
+      "Garlic",
+      "Cumin"
+    ]
+  },
+  {
+    "id": 5,
+    "day": "Friday",
+    "name": "Reindeer Masala & Root Vegetables",
+    "description": "Finnish reindeer cooked with warming Indian spices and served with seasonal roasted root vegetables.",
+    "price": 22.90,
+    "dietary": ["GF", "LF"],
+    "allergens": [],
+    "ingredients": [
+      "Finnish reindeer",
+      "Carrot",
+      "Parsnip",
+      "Onion",
+      "Tomato",
+      "Garam masala",
+      "Fresh herbs"
+    ]
+  }
+]
