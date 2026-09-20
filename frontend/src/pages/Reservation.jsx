@@ -1,6 +1,9 @@
 import { useState } from "react";
+import { useLanguage } from "../LanguageContext.jsx";
 
 function Reservation() {
+  const { language } = useLanguage();
+
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -10,7 +13,54 @@ function Reservation() {
     specialRequests: "",
   });
 
-  const [message, setMessage] = useState("");
+  const [submitted, setSubmitted] = useState(false);
+
+  const text = {
+    en: {
+      title: "Reserve a Table",
+      intro: "Join us for a Finnish–Indian fine-dining lunch experience.",
+      fullName: "Full Name",
+      namePlaceholder: "Your name",
+      email: "Email",
+      date: "Date",
+      time: "Time",
+      selectTime: "Select time",
+      guests: "Number of Guests",
+      guest: "Guest",
+      guestsWord: "Guests",
+      requests: "Allergies & Special Requests",
+      requestsPlaceholder:
+        "Please tell us about allergies, dietary requirements or other requests.",
+      button: "Check Availability",
+      thankYou: "Thank you",
+      message:
+        "Reservation details received. Final availability will be confirmed by the restaurant.",
+    },
+
+    fi: {
+      title: "Varaa pöytä",
+      intro:
+        "Tule nauttimaan suomalais-intialaisesta fine dining -lounaskokemuksesta.",
+      fullName: "Koko nimi",
+      namePlaceholder: "Nimesi",
+      email: "Sähköposti",
+      date: "Päivämäärä",
+      time: "Aika",
+      selectTime: "Valitse aika",
+      guests: "Vieraiden määrä",
+      guest: "vieras",
+      guestsWord: "vierasta",
+      requests: "Allergiat ja erityistoiveet",
+      requestsPlaceholder:
+        "Kerro meille allergioista, ruokavaliovaatimuksista tai muista toiveista.",
+      button: "Tarkista saatavuus",
+      thankYou: "Kiitos",
+      message:
+        "Varaustiedot on vastaanotettu. Ravintola vahvistaa lopullisen saatavuuden.",
+    },
+  };
+
+  const t = text[language];
 
   function handleChange(event) {
     const { name, value } = event.target;
@@ -23,10 +73,7 @@ function Reservation() {
 
   function handleSubmit(event) {
     event.preventDefault();
-
-    setMessage(
-      "Reservation details received. Final availability will be confirmed by the restaurant."
-    );
+    setSubmitted(true);
   }
 
   return (
@@ -34,17 +81,16 @@ function Reservation() {
 
       <div className="reservation-heading">
         <p className="section-small">NORDIC SPICES</p>
-        <h1>Reserve a Table</h1>
 
-        <p>
-          Join us for a Finnish–Indian fine-dining lunch experience.
-        </p>
+        <h1>{t.title}</h1>
+
+        <p>{t.intro}</p>
       </div>
 
       <form className="reservation-form" onSubmit={handleSubmit}>
 
         <div className="form-group">
-          <label htmlFor="name">Full Name</label>
+          <label htmlFor="name">{t.fullName}</label>
 
           <input
             id="name"
@@ -52,13 +98,13 @@ function Reservation() {
             name="name"
             value={formData.name}
             onChange={handleChange}
-            placeholder="Your name"
+            placeholder={t.namePlaceholder}
             required
           />
         </div>
 
         <div className="form-group">
-          <label htmlFor="email">Email</label>
+          <label htmlFor="email">{t.email}</label>
 
           <input
             id="email"
@@ -74,7 +120,7 @@ function Reservation() {
         <div className="form-row">
 
           <div className="form-group">
-            <label htmlFor="date">Date</label>
+            <label htmlFor="date">{t.date}</label>
 
             <input
               id="date"
@@ -87,7 +133,7 @@ function Reservation() {
           </div>
 
           <div className="form-group">
-            <label htmlFor="time">Time</label>
+            <label htmlFor="time">{t.time}</label>
 
             <select
               id="time"
@@ -96,7 +142,7 @@ function Reservation() {
               onChange={handleChange}
               required
             >
-              <option value="">Select time</option>
+              <option value="">{t.selectTime}</option>
               <option value="11:00">11:00</option>
               <option value="11:30">11:30</option>
               <option value="12:00">12:00</option>
@@ -110,7 +156,7 @@ function Reservation() {
         </div>
 
         <div className="form-group">
-          <label htmlFor="guests">Number of Guests</label>
+          <label htmlFor="guests">{t.guests}</label>
 
           <select
             id="guests"
@@ -118,18 +164,17 @@ function Reservation() {
             value={formData.guests}
             onChange={handleChange}
           >
-            <option value="1">1 Guest</option>
-            <option value="2">2 Guests</option>
-            <option value="3">3 Guests</option>
-            <option value="4">4 Guests</option>
-            <option value="5">5 Guests</option>
-            <option value="6">6 Guests</option>
+            {[1, 2, 3, 4, 5, 6].map((number) => (
+              <option key={number} value={number}>
+                {number} {number === 1 ? t.guest : t.guestsWord}
+              </option>
+            ))}
           </select>
         </div>
 
         <div className="form-group">
           <label htmlFor="specialRequests">
-            Allergies & Special Requests
+            {t.requests}
           </label>
 
           <textarea
@@ -138,18 +183,21 @@ function Reservation() {
             value={formData.specialRequests}
             onChange={handleChange}
             rows="5"
-            placeholder="Please tell us about allergies, dietary requirements or other requests."
+            placeholder={t.requestsPlaceholder}
           />
         </div>
 
         <button type="submit" className="reservation-btn">
-          Check Availability
+          {t.button}
         </button>
 
-        {message && (
+        {submitted && (
           <div className="reservation-message">
-            <strong>Thank you, {formData.name}.</strong>
-            <p>{message}</p>
+            <strong>
+              {t.thankYou}, {formData.name}.
+            </strong>
+
+            <p>{t.message}</p>
           </div>
         )}
 

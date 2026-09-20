@@ -779,3 +779,44 @@ nav {
 .retry-btn:hover {
   background-color: #8a6d3b;
 }
+/* More space for 3 dishes inside each day card */
+.weekly-menu {
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+.menu-card {
+  padding: 32px;
+}
+
+.dish-in-day {
+  padding: 22px 0;
+}
+
+.dish-in-day:first-of-type {
+  padding-top: 12px;
+}
+
+.dish-in-day h3 {
+  margin-bottom: 10px;
+}
+
+.dish-in-day p {
+  line-height: 1.7;
+}
+
+.dish-in-day hr {
+  margin: 28px 0 6px;
+  border: 0;
+  border-top: 1px solid #ddd;
+}
+
+@media (max-width: 768px) {
+  .menu-card {
+    padding: 22px;
+  }
+
+  .dish-in-day {
+    padding: 18px 0;
+  }
+}

@@ -1,129 +1,176 @@
 import menuData from "../data/menu.json";
+import { useLanguage } from "../LanguageContext.jsx";
 
 function Home() {
+  const { language } = useLanguage();
 
- 
+  const text = {
+    en: {
+      heroSmall: "FINNISH × INDIAN FINE DINING",
+      description:
+        "Finnish ingredients. Indian soul. A modern lunch experience inspired by two culinary cultures.",
+      viewMenu: "View Lunch Menu",
+      reserve: "Reserve a Table",
+      todaySmall: "TODAY AT NORDIC SPICES",
+      todaysLunch: "Today's Lunch",
+      intro:
+        "Nordic ingredients meet the warmth and spices of Indian cuisine.",
+      allergens: "Allergens",
+      noAllergens: "None",
+      weekend: "Weekend",
+      weekendText:
+        "Our lunch menu is available Monday to Friday.",
+      dietInfo:
+        "V = Vegetarian • VE = Vegan • GF = Gluten Free • LF = Lactose Free",
+      days: {
+        Monday: "MONDAY",
+        Tuesday: "TUESDAY",
+        Wednesday: "WEDNESDAY",
+        Thursday: "THURSDAY",
+        Friday: "FRIDAY",
+      },
+    },
+
+    fi: {
+      heroSmall: "SUOMALAINEN × INTIALAINEN FINE DINING",
+      description:
+        "Suomalaiset raaka-aineet. Intialainen sielu. Moderni lounaskokemus kahden ruokakulttuurin inspiroimana.",
+      viewMenu: "Katso lounasmenu",
+      reserve: "Varaa pöytä",
+      todaySmall: "TÄNÄÄN NORDIC SPICESISSA",
+      todaysLunch: "Tämän päivän lounas",
+      intro:
+        "Pohjoismaiset raaka-aineet kohtaavat intialaisen keittiön lämmön ja mausteet.",
+      allergens: "Allergeenit",
+      noAllergens: "Ei allergeeneja",
+      weekend: "Viikonloppu",
+      weekendText:
+        "Lounasmenu on saatavilla maanantaista perjantaihin.",
+      dietInfo:
+        "V = Kasvis • VE = Vegaaninen • GF = Gluteeniton • LF = Laktoositon",
+      days: {
+        Monday: "MAANANTAI",
+        Tuesday: "TIISTAI",
+        Wednesday: "KESKIVIIKKO",
+        Thursday: "TORSTAI",
+        Friday: "PERJANTAI",
+      },
+    },
+  };
+
+  const t = text[language];
+
   const today = new Date().toLocaleDateString("en-US", {
     weekday: "long",
   });
 
-  
-  const todaysDish = menuData.find(
-    (dish) => dish.day === today
+  const todaysMenu = menuData.find(
+    (dayMenu) => dayMenu.day === today
   );
 
   return (
     <div className="home">
 
-      {/* HERO */}
       <section className="hero">
-
-        <p className="hero-small">
-          FINNISH × INDIAN FINE DINING
-        </p>
+        <p className="hero-small">{t.heroSmall}</p>
 
         <h1>Nordic Spices</h1>
 
         <p className="hero-description">
-          Finnish ingredients. Indian soul. A modern lunch experience
-          inspired by two culinary cultures.
+          {t.description}
         </p>
 
         <div className="hero-buttons">
-
           <a href="/menu" className="primary-btn">
-            View Lunch Menu
+            {t.viewMenu}
           </a>
 
           <a href="/reservation" className="secondary-btn">
-            Reserve a Table
+            {t.reserve}
           </a>
-
         </div>
-
       </section>
 
-
-      {/* TODAY'S LUNCH */}
       <section className="today-section">
-
         <p className="section-small">
-          TODAY AT NORDIC SPICES
+          {t.todaySmall}
         </p>
 
-        <h2>Today's Lunch</h2>
+        <h2>{t.todaysLunch}</h2>
 
         <p className="today-intro">
-          Nordic ingredients meet the warmth and spices of Indian cuisine.
+          {t.intro}
         </p>
 
+        {todaysMenu ? (
+          todaysMenu.dishes.map((dish) => {
+            const dishName =
+              language === "fi"
+                ? dish.nameFi
+                : dish.name;
 
-        {todaysDish ? (
+            const dishDescription =
+              language === "fi"
+                ? dish.descriptionFi
+                : dish.description;
 
-          <div className="lunch-card">
+            const dishAllergens =
+              language === "fi"
+                ? dish.allergensFi
+                : dish.allergens;
 
-            <div>
+            return (
+              <div className="lunch-card" key={dish.id}>
+                <div>
 
-              <span className="dish-type">
-                {todaysDish.day.toUpperCase()}
-              </span>
-
-              <h3>{todaysDish.name}</h3>
-
-              <p className="dish-description">
-                {todaysDish.description}
-              </p>
-
-
-              <div className="dietary">
-
-                {todaysDish.dietary.map((item) => (
-                  <span key={item}>
-                    {item}
+                  <span className="dish-type">
+                    {t.days[todaysMenu.day]}
                   </span>
-                ))}
 
-              </div>
+                  <h3>{dishName}</h3>
 
+                  <p className="dish-description">
+                    {dishDescription}
+                  </p>
 
-              {todaysDish.allergens.length > 0 && (
+                  <div className="dietary">
+                    {dish.dietary.map((item) => (
+                      <span key={item}>
+                        {item}
+                      </span>
+                    ))}
+                  </div>
 
-                <p className="allergens">
-                  Allergens: {todaysDish.allergens.join(", ")}
+                  <p className="allergens">
+                    {t.allergens}:{" "}
+                    {dishAllergens.length > 0
+                      ? dishAllergens.join(", ")
+                      : t.noAllergens}
+                  </p>
+
+                </div>
+
+                <p className="price">
+                  €{dish.price.toFixed(2)}
                 </p>
-
-              )}
-
-            </div>
-
-
-            <p className="price">
-              €{todaysDish.price.toFixed(2)}
-            </p>
-
-          </div>
-
+              </div>
+            );
+          })
         ) : (
-
           <div className="lunch-card">
-
             <div>
-              <h3>Weekend</h3>
+              <h3>{t.weekend}</h3>
 
               <p className="dish-description">
-                Our lunch menu is available Monday to Friday.
+                {t.weekendText}
               </p>
             </div>
-
           </div>
-
         )}
 
-
         <p className="diet-info">
-          V = Vegetarian • VG = Vegan • GF = Gluten Free • LF = Lactose Free
+          {t.dietInfo}
         </p>
-
       </section>
 
     </div>

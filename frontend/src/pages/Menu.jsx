@@ -1,86 +1,129 @@
 import { Link } from "react-router-dom";
 import menuData from "../data/menu.json";
+import { useLanguage } from "../LanguageContext.jsx";
 
 function Menu() {
+  const { language } = useLanguage();
+
+  const text = {
+    en: {
+      weeklyLunch: "WEEKLY LUNCH",
+      title: "Lunch Menu",
+      intro:
+        "Finnish ingredients meet Indian spices. Our lunch menu is served Monday to Friday.",
+      today: "Today",
+      allergens: "Allergens",
+      none: "None",
+      details: "View Dish Details",
+      days: {
+        Monday: "Monday",
+        Tuesday: "Tuesday",
+        Wednesday: "Wednesday",
+        Thursday: "Thursday",
+        Friday: "Friday",
+      },
+    },
+
+    fi: {
+      weeklyLunch: "VIIKON LOUNAS",
+      title: "Lounasmenu",
+      intro:
+        "Suomalaiset raaka-aineet kohtaavat intialaiset mausteet. Lounasta tarjoillaan maanantaista perjantaihin.",
+      today: "Tänään",
+      allergens: "Allergeenit",
+      none: "Ei allergeeneja",
+      details: "Näytä annoksen tiedot",
+      days: {
+        Monday: "Maanantai",
+        Tuesday: "Tiistai",
+        Wednesday: "Keskiviikko",
+        Thursday: "Torstai",
+        Friday: "Perjantai",
+      },
+    },
+  };
+
+  const t = text[language];
+
   const today = new Date().toLocaleDateString("en-US", {
     weekday: "long",
   });
 
   return (
-    <div className="menu-page">
+    <main className="menu-page">
+      <section className="menu-header">
+        <p className="eyebrow">{t.weeklyLunch}</p>
 
-      <div className="menu-heading">
-        <p className="section-small">NORDIC SPICES</p>
-        <h1>Lunch Menu</h1>
+        <h1>{t.title}</h1>
 
-        <p>
-          A weekly lunch menu combining Nordic ingredients
-          with the flavours of India.
-        </p>
-      </div>
+        <p>{t.intro}</p>
+      </section>
 
-      <div className="weekly-menu">
-
-        {menuData.map((dish) => {
-          const isToday = dish.day === today;
+      <section className="weekly-menu">
+        {menuData.map((dayMenu) => {
+          const isToday = dayMenu.day === today;
 
           return (
-            <article
+            <div
               className={`menu-card ${isToday ? "today-card" : ""}`}
-              key={dish.id}
+              key={dayMenu.day}
             >
+              <div className="day-heading">
+                <h2>{t.days[dayMenu.day]}</h2>
 
-              <div className="menu-card-top">
-                <p className="menu-day">
-                  {dish.day}
-                  {isToday && <span className="today-label"> TODAY</span>}
-                </p>
-
-                <p className="menu-price">
-                  €{dish.price.toFixed(2)}
-                </p>
+                {isToday && (
+                  <span className="today-badge">
+                    {t.today}
+                  </span>
+                )}
               </div>
 
-              <h2>{dish.name}</h2>
+              {dayMenu.dishes.map((dish, index) => (
+                <div className="dish-in-day" key={dish.id}>
+                 <h3>
+  {language === "fi" ? dish.nameFi : dish.name}
+</h3>
 
-              <p className="menu-description">
-                {dish.description}
-              </p>
+<p>
+  {language === "fi" ? dish.descriptionFi : dish.description}
+</p>
 
-              <div className="dietary">
-                {dish.dietary.map((item) => (
-                  <span key={item}>{item}</span>
-                ))}
-              </div>
+                  <div className="menu-meta">
+                    <strong>€{dish.price.toFixed(2)}</strong>
 
-              <p className="allergens">
-                Allergens:{" "}
-                {dish.allergens.length > 0
-                  ? dish.allergens.join(", ")
-                  : "None listed"}
+                    <div className="dietary-tags">
+                      {dish.dietary.map((item) => (
+                        <span key={item}>{item}</span>
+                      ))}
+                    </div>
+                  </div>
+
+                  <p className="allergens">
+                    <strong>{t.allergens}:</strong>{" "}
+                    {language === "fi"
+  ? (dish.allergensFi.length
+      ? dish.allergensFi.join(", ")
+      : t.none)
+  : (dish.allergens.length
+      ? dish.allergens.join(", ")
+      : t.none)}
+                  </p>
+
                   <Link
-                  to={`/menu/${dish.id}`}
-                className="details-btn"
-                >
-                 View Dish Details →
-                </Link>
-              </p>
+                    to={`/menu/${dish.id}`}
+                    className="details-link"
+                  >
+                    {t.details}
+                  </Link>
 
-            </article>
+                  {index < dayMenu.dishes.length - 1 && <hr />}
+                </div>
+              ))}
+            </div>
           );
         })}
-
-      </div>
-
-      <div className="dietary-guide">
-        <strong>Dietary information</strong>
-        <p>
-          V = Vegetarian • VG = Vegan • GF = Gluten Free •
-          LF = Lactose Free
-        </p>
-      </div>
-
-    </div>
+      </section>
+    </main>
   );
 }
 
