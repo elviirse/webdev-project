@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { CalendarDays, Clock, Users } from "lucide-react";
 import { useLanguage } from "../LanguageContext.jsx";
 
 function Reservation() {
@@ -17,8 +18,10 @@ function Reservation() {
 
   const text = {
     en: {
-      title: "Reserve a Table",
-      intro: "Join us for a Finnish–Indian fine-dining lunch experience.",
+      label: "RESERVATIONS",
+      title: "Reserve Your Table",
+      intro:
+        "Join us for a dining experience where Nordic ingredients meet the warmth of Indian flavours.",
       fullName: "Full Name",
       namePlaceholder: "Your name",
       email: "Email",
@@ -31,16 +34,23 @@ function Reservation() {
       requests: "Allergies & Special Requests",
       requestsPlaceholder:
         "Please tell us about allergies, dietary requirements or other requests.",
-      button: "Check Availability",
+      button: "CHECK AVAILABILITY",
       thankYou: "Thank you",
       message:
         "Reservation details received. Final availability will be confirmed by the restaurant.",
+      lunch: "Opening Hours",
+      lunchHours: "Monday–Friday · 11:00–14:00",
+      experience: "Fine Dining",
+      experienceText: "Finnish ingredients · Asian soul",
+      party: "Your Party",
+      partyText: "Tables for 1–6 guests",
     },
 
     fi: {
-      title: "Varaa pöytä",
+      label: "PÖYTÄVARAUKSET",
+      title: "Varaa Pöytä",
       intro:
-        "Tule nauttimaan suomalais-intialaisesta fine dining -lounaskokemuksesta.",
+        "Tule nauttimaan ruokailuelämyksestä, jossa pohjoismaiset raaka-aineet kohtaavat intialaisten makujen lämmön.",
       fullName: "Koko nimi",
       namePlaceholder: "Nimesi",
       email: "Sähköposti",
@@ -53,10 +63,16 @@ function Reservation() {
       requests: "Allergiat ja erityistoiveet",
       requestsPlaceholder:
         "Kerro meille allergioista, ruokavaliovaatimuksista tai muista toiveista.",
-      button: "Tarkista saatavuus",
+      button: "TARKISTA SAATAVUUS",
       thankYou: "Kiitos",
       message:
         "Varaustiedot on vastaanotettu. Ravintola vahvistaa lopullisen saatavuuden.",
+      lunch: "Lounas",
+      lunchHours: "Maanantai–perjantai · 11:00–14:00",
+      experience: "Fine Dining",
+      experienceText: "Suomalaiset raaka-aineet · Intialainen sielu",
+      party: "Seurueesi",
+      partyText: "Pöydät 1–6 vieraalle",
     },
   };
 
@@ -77,133 +93,186 @@ function Reservation() {
   }
 
   return (
-    <div className="reservation-page">
+    <main className="luxury-reservation-page">
+      <section className="reservation-hero">
+        <div className="reservation-hero-overlay"></div>
 
-      <div className="reservation-heading">
-        <p className="section-small">NORDIC SPICES</p>
+        <div className="reservation-hero-content">
+          <p className="reservation-label">{t.label}</p>
 
-        <h1>{t.title}</h1>
+          <h1>{t.title}</h1>
 
-        <p>{t.intro}</p>
-      </div>
+          <div className="reservation-ornament">
+            <span></span>
+            <span className="reservation-leaf">❧</span>
+            <span></span>
+          </div>
 
-      <form className="reservation-form" onSubmit={handleSubmit}>
+          <p>{t.intro}</p>
+        </div>
+      </section>
 
-        <div className="form-group">
-          <label htmlFor="name">{t.fullName}</label>
+      <section className="reservation-main">
+        <div className="reservation-info-panel">
+          <p className="reservation-info-label">NORDIC SPICES</p>
 
-          <input
-            id="name"
-            type="text"
-            name="name"
-            value={formData.name}
-            onChange={handleChange}
-            placeholder={t.namePlaceholder}
-            required
-          />
+          <h2>
+            {language === "fi"
+              ? "Suunnittele vierailusi"
+              : "Plan Your Visit"}
+          </h2>
+
+          <div className="reservation-info-item">
+            <Clock size={24} strokeWidth={1.4} />
+
+            <div>
+              <h3>{t.lunch}</h3>
+              <p>{t.lunchHours}</p>
+            </div>
+          </div>
+
+          <div className="reservation-info-item">
+            <CalendarDays size={24} strokeWidth={1.4} />
+
+            <div>
+              <h3>{t.experience}</h3>
+              <p>{t.experienceText}</p>
+            </div>
+          </div>
+
+          <div className="reservation-info-item">
+            <Users size={24} strokeWidth={1.4} />
+
+            <div>
+              <h3>{t.party}</h3>
+              <p>{t.partyText}</p>
+            </div>
+          </div>
+
+          <span className="reservation-big-leaf">❧</span>
         </div>
 
-        <div className="form-group">
-          <label htmlFor="email">{t.email}</label>
-
-          <input
-            id="email"
-            type="email"
-            name="email"
-            value={formData.email}
-            onChange={handleChange}
-            placeholder="you@example.com"
-            required
-          />
-        </div>
-
-        <div className="form-row">
-
+        <form
+          className="reservation-form luxury-reservation-form"
+          onSubmit={handleSubmit}
+        >
           <div className="form-group">
-            <label htmlFor="date">{t.date}</label>
+            <label htmlFor="name">{t.fullName}</label>
 
             <input
-              id="date"
-              type="date"
-              name="date"
-              value={formData.date}
+              id="name"
+              type="text"
+              name="name"
+              value={formData.name}
               onChange={handleChange}
+              placeholder={t.namePlaceholder}
               required
             />
           </div>
 
           <div className="form-group">
-            <label htmlFor="time">{t.time}</label>
+            <label htmlFor="email">{t.email}</label>
+
+            <input
+              id="email"
+              type="email"
+              name="email"
+              value={formData.email}
+              onChange={handleChange}
+              placeholder="you@example.com"
+              required
+            />
+          </div>
+
+          <div className="form-row">
+            <div className="form-group">
+              <label htmlFor="date">{t.date}</label>
+
+              <input
+                id="date"
+                type="date"
+                name="date"
+                value={formData.date}
+                onChange={handleChange}
+                required
+              />
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="time">{t.time}</label>
+
+              <select
+                id="time"
+                name="time"
+                value={formData.time}
+                onChange={handleChange}
+                required
+              >
+                <option value="">{t.selectTime}</option>
+                <option value="11:00">11:00</option>
+                <option value="11:30">11:30</option>
+                <option value="12:00">12:00</option>
+                <option value="12:30">12:30</option>
+                <option value="13:00">13:00</option>
+                <option value="13:30">13:30</option>
+                <option value="14:00">14:00</option>
+              </select>
+            </div>
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="guests">{t.guests}</label>
 
             <select
-              id="time"
-              name="time"
-              value={formData.time}
+              id="guests"
+              name="guests"
+              value={formData.guests}
               onChange={handleChange}
-              required
             >
-              <option value="">{t.selectTime}</option>
-              <option value="11:00">11:00</option>
-              <option value="11:30">11:30</option>
-              <option value="12:00">12:00</option>
-              <option value="12:30">12:30</option>
-              <option value="13:00">13:00</option>
-              <option value="13:30">13:30</option>
-              <option value="14:00">14:00</option>
+              {[1, 2, 3, 4, 5, 6].map((number) => (
+                <option key={number} value={number}>
+                  {number}{" "}
+                  {number === 1 ? t.guest : t.guestsWord}
+                </option>
+              ))}
             </select>
           </div>
 
-        </div>
+          <div className="form-group">
+            <label htmlFor="specialRequests">
+              {t.requests}
+            </label>
 
-        <div className="form-group">
-          <label htmlFor="guests">{t.guests}</label>
-
-          <select
-            id="guests"
-            name="guests"
-            value={formData.guests}
-            onChange={handleChange}
-          >
-            {[1, 2, 3, 4, 5, 6].map((number) => (
-              <option key={number} value={number}>
-                {number} {number === 1 ? t.guest : t.guestsWord}
-              </option>
-            ))}
-          </select>
-        </div>
-
-        <div className="form-group">
-          <label htmlFor="specialRequests">
-            {t.requests}
-          </label>
-
-          <textarea
-            id="specialRequests"
-            name="specialRequests"
-            value={formData.specialRequests}
-            onChange={handleChange}
-            rows="5"
-            placeholder={t.requestsPlaceholder}
-          />
-        </div>
-
-        <button type="submit" className="reservation-btn">
-          {t.button}
-        </button>
-
-        {submitted && (
-          <div className="reservation-message">
-            <strong>
-              {t.thankYou}, {formData.name}.
-            </strong>
-
-            <p>{t.message}</p>
+            <textarea
+              id="specialRequests"
+              name="specialRequests"
+              value={formData.specialRequests}
+              onChange={handleChange}
+              rows="5"
+              placeholder={t.requestsPlaceholder}
+            />
           </div>
-        )}
 
-      </form>
+          <button
+            type="submit"
+            className="reservation-btn luxury-reservation-btn"
+          >
+            {t.button}
+            <span>→</span>
+          </button>
 
-    </div>
+          {submitted && (
+            <div className="reservation-message luxury-reservation-message">
+              <strong>
+                {t.thankYou}, {formData.name}.
+              </strong>
+
+              <p>{t.message}</p>
+            </div>
+          )}
+        </form>
+      </section>
+    </main>
   );
 }
 

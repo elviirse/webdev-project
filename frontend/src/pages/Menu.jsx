@@ -10,11 +10,11 @@ function Menu() {
       weeklyLunch: "WEEKLY LUNCH",
       title: "Lunch Menu",
       intro:
-        "Finnish ingredients meet Indian spices. Our lunch menu is served Monday to Friday.",
+        "Finnish ingredients meet Asian spices. Our lunch menu is served Monday to Friday.",
       today: "Today",
       allergens: "Allergens",
       none: "None",
-      details: "View Dish Details",
+      details: "VIEW DISH DETAILS",
       days: {
         Monday: "Monday",
         Tuesday: "Tuesday",
@@ -32,7 +32,7 @@ function Menu() {
       today: "Tänään",
       allergens: "Allergeenit",
       none: "Ei allergeeneja",
-      details: "Näytä annoksen tiedot",
+      details: "NÄYTÄ ANNOKSEN TIEDOT",
       days: {
         Monday: "Maanantai",
         Tuesday: "Tiistai",
@@ -50,26 +50,41 @@ function Menu() {
   });
 
   return (
-    <main className="menu-page">
-      <section className="menu-header">
-        <p className="eyebrow">{t.weeklyLunch}</p>
+    <main className="menu-page luxury-menu-page">
+
+      <section className="luxury-menu-header">
+        <p className="luxury-menu-eyebrow">{t.weeklyLunch}</p>
 
         <h1>{t.title}</h1>
 
-        <p>{t.intro}</p>
+        <div className="luxury-menu-ornament">
+          <span></span>
+          <span className="luxury-menu-leaf">❧</span>
+          <span></span>
+        </div>
+
+        <p className="luxury-menu-intro">{t.intro}</p>
       </section>
 
-      <section className="weekly-menu">
+      <section className="weekly-menu luxury-weekly-menu">
         {menuData.map((dayMenu) => {
           const isToday = dayMenu.day === today;
 
           return (
-            <div
-              className={`menu-card ${isToday ? "today-card" : ""}`}
+            <article
+              className={`menu-card luxury-day-card ${
+                isToday ? "today-card" : ""
+              }`}
               key={dayMenu.day}
             >
-              <div className="day-heading">
-                <h2>{t.days[dayMenu.day]}</h2>
+              <div className="day-heading luxury-day-heading">
+                <div>
+                  <span className="day-small-label">
+                    {t.weeklyLunch}
+                  </span>
+
+                  <h2>{t.days[dayMenu.day]}</h2>
+                </div>
 
                 {isToday && (
                   <span className="today-badge">
@@ -78,51 +93,65 @@ function Menu() {
                 )}
               </div>
 
-              {dayMenu.dishes.map((dish, index) => (
-                <div className="dish-in-day" key={dish.id}>
-                 <h3>
-  {language === "fi" ? dish.nameFi : dish.name}
-</h3>
+              <div className="day-dishes">
+                {dayMenu.dishes.map((dish, index) => (
+                  <div className="dish-in-day luxury-dish" key={dish.id}>
+                    <div className="dish-title-row">
+                      <h3>
+                        {language === "fi"
+                          ? dish.nameFi
+                          : dish.name}
+                      </h3>
 
-<p>
-  {language === "fi" ? dish.descriptionFi : dish.description}
-</p>
-
-                  <div className="menu-meta">
-                    <strong>€{dish.price.toFixed(2)}</strong>
-
-                    <div className="dietary-tags">
-                      {dish.dietary.map((item) => (
-                        <span key={item}>{item}</span>
-                      ))}
+                      <strong className="dish-price">
+                        €{dish.price.toFixed(2)}
+                      </strong>
                     </div>
+
+                    <p className="dish-description">
+                      {language === "fi"
+                        ? dish.descriptionFi
+                        : dish.description}
+                    </p>
+
+                    <div className="menu-meta">
+                      <div className="dietary-tags">
+                        {dish.dietary.map((item) => (
+                          <span key={item}>{item}</span>
+                        ))}
+                      </div>
+                    </div>
+
+                    <p className="allergens">
+                      <strong>{t.allergens}:</strong>{" "}
+                      {language === "fi"
+                        ? dish.allergensFi.length
+                          ? dish.allergensFi.join(", ")
+                          : t.none
+                        : dish.allergens.length
+                        ? dish.allergens.join(", ")
+                        : t.none}
+                    </p>
+
+                    <Link
+                      to={`/menu/${dish.id}`}
+                      className="details-link luxury-details-link"
+                    >
+                      {t.details}
+                      <span>→</span>
+                    </Link>
+
+                    {index < dayMenu.dishes.length - 1 && (
+                      <hr />
+                    )}
                   </div>
-
-                  <p className="allergens">
-                    <strong>{t.allergens}:</strong>{" "}
-                    {language === "fi"
-  ? (dish.allergensFi.length
-      ? dish.allergensFi.join(", ")
-      : t.none)
-  : (dish.allergens.length
-      ? dish.allergens.join(", ")
-      : t.none)}
-                  </p>
-
-                  <Link
-                    to={`/menu/${dish.id}`}
-                    className="details-link"
-                  >
-                    {t.details}
-                  </Link>
-
-                  {index < dayMenu.dishes.length - 1 && <hr />}
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            </article>
           );
         })}
       </section>
+
     </main>
   );
 }

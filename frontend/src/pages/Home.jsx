@@ -1,5 +1,11 @@
+
 import { Link } from "react-router-dom";
 import { useLanguage } from "../LanguageContext.jsx";
+import FestiveOffer from "../components/FestiveOffer.jsx";
+import AboutSection from "../components/AboutSection.jsx";
+import MenuPreview from "../components/MenuPreview.jsx";
+import ReservationCTA from "../components/ReservationCTA.jsx";
+import RestaurantPreview from "../components/RestaurantPreview.jsx";
 
 function Home() {
   const { language } = useLanguage();
@@ -16,7 +22,7 @@ function Home() {
     fi: {
       line1: "Kaksi Kulttuuria.",
       line2: "Yksi Poikkeuksellinen Pöytä.",
-      tagline1: "POHJOISMAISET RAAKA-AINEET. INTIALAINEN SIELU.",
+      tagline1: "POHJOISMAISET RAAKA-AINEET. ASIAN SIELU.",
       tagline2: "FINE DINING -ELÄMYS.",
       button: "TUTUSTU MENUUN",
     },
@@ -51,7 +57,12 @@ function Home() {
             <span className="discover-arrow">→</span>
           </Link>
         </div>
-      </section>
+            </section>
+<FestiveOffer />
+<AboutSection />
+<MenuPreview />
+<ReservationCTA />
+<RestaurantPreview />
     </main>
   );
 }

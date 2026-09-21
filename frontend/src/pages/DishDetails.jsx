@@ -14,6 +14,7 @@ function DishDetails() {
       dietary: "Dietary Information",
       allergens: "Allergens",
       noAllergens: "No listed allergens",
+      dishDetails: "DISH DETAILS",
       days: {
         Monday: "Monday",
         Tuesday: "Tuesday",
@@ -30,6 +31,7 @@ function DishDetails() {
       dietary: "Ruokavaliotiedot",
       allergens: "Allergeenit",
       noAllergens: "Ei ilmoitettuja allergeeneja",
+      dishDetails: "ANNOKSEN TIEDOT",
       days: {
         Monday: "Maanantai",
         Tuesday: "Tiistai",
@@ -42,25 +44,26 @@ function DishDetails() {
 
   const t = text[language];
 
-  // Find the day that contains the selected dish
   const dayMenu = menuData.find((day) =>
     day.dishes.some((dish) => dish.id === Number(id))
   );
 
-  // Find the selected dish
   const dish = dayMenu?.dishes.find(
     (dish) => dish.id === Number(id)
   );
 
   if (!dish) {
     return (
-      <div className="dish-details-page">
-        <h1>{t.notFound}</h1>
+      <main className="luxury-dish-details">
+        <div className="dish-not-found">
+          <span>❧</span>
+          <h1>{t.notFound}</h1>
 
-        <Link to="/menu" className="back-link">
-          ← {t.back}
-        </Link>
-      </div>
+          <Link to="/menu" className="luxury-back-link">
+            ← {t.back}
+          </Link>
+        </div>
+      </main>
     );
   }
 
@@ -83,63 +86,90 @@ function DishDetails() {
       : dish.allergens;
 
   return (
-    <div className="dish-details-page">
+    <main className="luxury-dish-details">
+      <div className="dish-details-container">
 
-      <Link to="/menu" className="back-link">
-        ← {t.back}
-      </Link>
+        <Link to="/menu" className="luxury-back-link">
+          ← {t.back}
+        </Link>
 
-      <p className="section-small">
-        {t.days[dayMenu.day]}
-      </p>
+        <header className="dish-details-header">
+          <p className="dish-detail-label">
+            {t.dishDetails}
+          </p>
 
-      <div className="dish-title-row">
-        <h1>{dishName}</h1>
+          <p className="dish-detail-day">
+            {t.days[dayMenu.day]}
+          </p>
 
-        <span className="detail-price">
-          €{dish.price.toFixed(2)}
-        </span>
-      </div>
+          <div className="dish-detail-title-row">
+            <h1>{dishName}</h1>
 
-      <p className="detail-description">
-        {dishDescription}
-      </p>
-
-      <section className="detail-section">
-        <h2>{t.ingredients}</h2>
-
-        <ul>
-          {dishIngredients.map((ingredient) => (
-            <li key={ingredient}>
-              {ingredient}
-            </li>
-          ))}
-        </ul>
-      </section>
-
-      <section className="detail-section">
-        <h2>{t.dietary}</h2>
-
-        <div className="dietary">
-          {dish.dietary.map((item) => (
-            <span key={item}>
-              {item}
+            <span className="detail-price">
+              €{dish.price.toFixed(2)}
             </span>
-          ))}
+          </div>
+
+          <div className="dish-detail-ornament">
+            <span></span>
+            <span className="dish-detail-leaf">❧</span>
+            <span></span>
+          </div>
+
+          <p className="detail-description">
+            {dishDescription}
+          </p>
+        </header>
+
+        <div className="dish-information-grid">
+
+          <section className="luxury-detail-section ingredients-section">
+            <p className="detail-number">01</p>
+            <h2>{t.ingredients}</h2>
+
+            <ul>
+              {dishIngredients.map((ingredient) => (
+                <li key={ingredient}>
+                  {ingredient}
+                </li>
+              ))}
+            </ul>
+          </section>
+
+          <section className="luxury-detail-section">
+            <p className="detail-number">02</p>
+            <h2>{t.dietary}</h2>
+
+            <div className="detail-dietary-tags">
+              {dish.dietary.map((item) => (
+                <span key={item}>
+                  {item}
+                </span>
+              ))}
+            </div>
+          </section>
+
+          <section className="luxury-detail-section">
+            <p className="detail-number">03</p>
+            <h2>{t.allergens}</h2>
+
+            <p className="detail-allergen-text">
+              {dishAllergens.length > 0
+                ? dishAllergens.join(", ")
+                : t.noAllergens}
+            </p>
+          </section>
+
         </div>
-      </section>
 
-      <section className="detail-section">
-        <h2>{t.allergens}</h2>
+        <div className="dish-details-bottom">
+          <Link to="/menu" className="dish-menu-button">
+            ← {t.back}
+          </Link>
+        </div>
 
-        <p>
-          {dishAllergens.length > 0
-            ? dishAllergens.join(", ")
-            : t.noAllergens}
-        </p>
-      </section>
-
-    </div>
+      </div>
+    </main>
   );
 }
 
