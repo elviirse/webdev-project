@@ -1,4 +1,4 @@
-import menuData from "../data/menu.json";
+import { Link } from "react-router-dom";
 import { useLanguage } from "../LanguageContext.jsx";
 
 function Home() {
@@ -6,174 +6,53 @@ function Home() {
 
   const text = {
     en: {
-      heroSmall: "FINNISH × INDIAN FINE DINING",
-      description:
-        "Finnish ingredients. Indian soul. A modern lunch experience inspired by two culinary cultures.",
-      viewMenu: "View Lunch Menu",
-      reserve: "Reserve a Table",
-      todaySmall: "TODAY AT NORDIC SPICES",
-      todaysLunch: "Today's Lunch",
-      intro:
-        "Nordic ingredients meet the warmth and spices of Indian cuisine.",
-      allergens: "Allergens",
-      noAllergens: "None",
-      weekend: "Weekend",
-      weekendText:
-        "Our lunch menu is available Monday to Friday.",
-      dietInfo:
-        "V = Vegetarian • VE = Vegan • GF = Gluten Free • LF = Lactose Free",
-      days: {
-        Monday: "MONDAY",
-        Tuesday: "TUESDAY",
-        Wednesday: "WEDNESDAY",
-        Thursday: "THURSDAY",
-        Friday: "FRIDAY",
-      },
+      line1: "Two Cultures.",
+      line2: "One Exceptional Table.",
+      tagline1: "NORDIC INGREDIENTS. ASIAN SOUL.",
+      tagline2: "A FINE DINING EXPERIENCE.",
+      button: "DISCOVER OUR MENU",
     },
 
     fi: {
-      heroSmall: "SUOMALAINEN × INTIALAINEN FINE DINING",
-      description:
-        "Suomalaiset raaka-aineet. Intialainen sielu. Moderni lounaskokemus kahden ruokakulttuurin inspiroimana.",
-      viewMenu: "Katso lounasmenu",
-      reserve: "Varaa pöytä",
-      todaySmall: "TÄNÄÄN NORDIC SPICESISSA",
-      todaysLunch: "Tämän päivän lounas",
-      intro:
-        "Pohjoismaiset raaka-aineet kohtaavat intialaisen keittiön lämmön ja mausteet.",
-      allergens: "Allergeenit",
-      noAllergens: "Ei allergeeneja",
-      weekend: "Viikonloppu",
-      weekendText:
-        "Lounasmenu on saatavilla maanantaista perjantaihin.",
-      dietInfo:
-        "V = Kasvis • VE = Vegaaninen • GF = Gluteeniton • LF = Laktoositon",
-      days: {
-        Monday: "MAANANTAI",
-        Tuesday: "TIISTAI",
-        Wednesday: "KESKIVIIKKO",
-        Thursday: "TORSTAI",
-        Friday: "PERJANTAI",
-      },
+      line1: "Kaksi Kulttuuria.",
+      line2: "Yksi Poikkeuksellinen Pöytä.",
+      tagline1: "POHJOISMAISET RAAKA-AINEET. INTIALAINEN SIELU.",
+      tagline2: "FINE DINING -ELÄMYS.",
+      button: "TUTUSTU MENUUN",
     },
   };
 
   const t = text[language];
 
-  const today = new Date().toLocaleDateString("en-US", {
-    weekday: "long",
-  });
-
-  const todaysMenu = menuData.find(
-    (dayMenu) => dayMenu.day === today
-  );
-
   return (
-    <div className="home">
+    <main className="home-luxury">
+      <section className="luxury-hero">
+        <div className="hero-overlay"></div>
 
-      <section className="hero">
-        <p className="hero-small">{t.heroSmall}</p>
+        <div className="luxury-hero-content">
+          <h1>
+            <span>{t.line1}</span>
+            <span>{t.line2}</span>
+          </h1>
 
-        <h1>Nordic Spices</h1>
+          <div className="hero-ornament">
+            <span></span>
+            <span className="hero-leaf">❧</span>
+            <span></span>
+          </div>
 
-        <p className="hero-description">
-          {t.description}
-        </p>
+          <div className="luxury-tagline">
+            <p>{t.tagline1}</p>
+            <p>{t.tagline2}</p>
+          </div>
 
-        <div className="hero-buttons">
-          <a href="/menu" className="primary-btn">
-            {t.viewMenu}
-          </a>
-
-          <a href="/reservation" className="secondary-btn">
-            {t.reserve}
-          </a>
+          <Link to="/menu" className="discover-menu-btn">
+            {t.button}
+            <span className="discover-arrow">→</span>
+          </Link>
         </div>
       </section>
-
-      <section className="today-section">
-        <p className="section-small">
-          {t.todaySmall}
-        </p>
-
-        <h2>{t.todaysLunch}</h2>
-
-        <p className="today-intro">
-          {t.intro}
-        </p>
-
-        {todaysMenu ? (
-          todaysMenu.dishes.map((dish) => {
-            const dishName =
-              language === "fi"
-                ? dish.nameFi
-                : dish.name;
-
-            const dishDescription =
-              language === "fi"
-                ? dish.descriptionFi
-                : dish.description;
-
-            const dishAllergens =
-              language === "fi"
-                ? dish.allergensFi
-                : dish.allergens;
-
-            return (
-              <div className="lunch-card" key={dish.id}>
-                <div>
-
-                  <span className="dish-type">
-                    {t.days[todaysMenu.day]}
-                  </span>
-
-                  <h3>{dishName}</h3>
-
-                  <p className="dish-description">
-                    {dishDescription}
-                  </p>
-
-                  <div className="dietary">
-                    {dish.dietary.map((item) => (
-                      <span key={item}>
-                        {item}
-                      </span>
-                    ))}
-                  </div>
-
-                  <p className="allergens">
-                    {t.allergens}:{" "}
-                    {dishAllergens.length > 0
-                      ? dishAllergens.join(", ")
-                      : t.noAllergens}
-                  </p>
-
-                </div>
-
-                <p className="price">
-                  €{dish.price.toFixed(2)}
-                </p>
-              </div>
-            );
-          })
-        ) : (
-          <div className="lunch-card">
-            <div>
-              <h3>{t.weekend}</h3>
-
-              <p className="dish-description">
-                {t.weekendText}
-              </p>
-            </div>
-          </div>
-        )}
-
-        <p className="diet-info">
-          {t.dietInfo}
-        </p>
-      </section>
-
-    </div>
+    </main>
   );
 }
 
