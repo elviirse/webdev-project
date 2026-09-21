@@ -1,67 +1,48 @@
-export const menu = [
-  {
-    id: 1,
-    name: "Chicken Curry",
-    description: "Chicken curry with rice",
-    price: 12.9,
-    day: "Monday",
-    vegetarian: false,
-    vegan: false,
-    glutenFree: true,
-  },
-  {
-    id: 2,
-    name: "Vegetable Pasta",
-    description: "Pasta with vegetables",
-    price: 10.9,
-    day: "Tuesday",
-    vegetarian: true,
-    vegan: false,
-    glutenFree: false,
-  },
-  {
-    id: 3,
-    name: "Salmon Soup",
-    description: "Finnish salmon soup",
-    price: 11.9,
-    day: "Wednesday",
-    vegetarian: false,
-    vegan: false,
-    glutenFree: true,
-  },
-  {
-    id: 4,
-    name: "Beef Burger",
-    description: "Beef burger with fries",
-    price: 13.9,
-    day: "Thursday",
-    vegetarian: false,
-    vegan: false,
-    glutenFree: false,
-  },
-];
+import fs from "fs";
+import path from "path";
+import { fileURLToPath } from "url";
 
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+// Temporary JSON data.
+// Later this will be replaced with Sakib's MySQL database.
+const menuPath = path.join(__dirname, "../data/menu.json");
+
+export const menu = JSON.parse(fs.readFileSync(menuPath, "utf-8"));
+
+// GET /api/menu
 export const getAllMenuItems = (req, res) => {
   res.json(menu);
 };
 
+// GET /api/menu/today
 export const getTodayMenu = (req, res) => {
   const today = new Date().toLocaleDateString("en-US", {
     weekday: "long",
   });
 
-  const todayMenu = menu.filter((item) => item.day === today);
+  const todayMenu = menu.find((dayMenu) => dayMenu.day === today);
 
   res.json({
     day: today,
-    menu: todayMenu,
+    dishes: todayMenu ? todayMenu.dishes : [],
   });
 };
 
+// GET /api/menu/:id
 export const getMenuItemById = (req, res) => {
   const id = Number(req.params.id);
 
-  const item = menu.find((food) => food.id === id);
+  if (!Number.isInteger(id) || id < 1) {
+    return res.status(400).json({
+      message: "Invalid menu item ID",
+    });
+  }
+
+  const allDishes = menu.flatMap((dayMenu) => dayMenu.dishes);
+
+  const item = allDishes.find((dish) => dish.id === id);
 
   if (!item) {
     return res.status(404).json({
