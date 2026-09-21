@@ -12,7 +12,7 @@ function Restaurant() {
       weekdays: "Monday – Friday",
       weekend: "Saturday – Sunday: Closed",
       location: "Location",
-      address: "Restaurant address will be added here.",
+      address: "Leiritie 1, 01600 Vantaa",
       contact: "Contact",
       email: "Email",
       phone: "Phone",
@@ -20,6 +20,8 @@ function Restaurant() {
       transport: "Public Transport",
       transportInfo:
         "Public transport information will be provided using an open transport API.",
+      mapTitle: "Restaurant Location",
+      mapAddress: "Leiritie 1, 01600 Vantaa",
     },
 
     fi: {
@@ -30,7 +32,7 @@ function Restaurant() {
       weekdays: "Maanantai – perjantai",
       weekend: "Lauantai – sunnuntai: Suljettu",
       location: "Sijainti",
-      address: "Ravintolan osoite lisätään tähän.",
+      address: "Leiritie 1, 01600 Vantaa",
       contact: "Yhteystiedot",
       email: "Sähköposti",
       phone: "Puhelin",
@@ -38,6 +40,8 @@ function Restaurant() {
       transport: "Julkinen liikenne",
       transportInfo:
         "Julkisen liikenteen tiedot tarjotaan avoimen liikenteen rajapinnan avulla.",
+      mapTitle: "Ravintolan sijainti",
+      mapAddress: "Leiritie 1, 01600 Vantaa",
     },
   };
 
@@ -63,14 +67,18 @@ function Restaurant() {
 
         <section className="info-card">
           <h2>{t.location}</h2>
-          <p>Helsinki, Finland</p>
+          <p>Vantaa, Finland</p>
           <p>{t.address}</p>
         </section>
 
         <section className="info-card">
           <h2>{t.contact}</h2>
-          <p>{t.email}: info@nordicspices.fi</p>
-          <p>{t.phone}: +358 XX XXX XXXX</p>
+          <p>
+            {t.email}: info@nordicspices.fi
+          </p>
+          <p>
+            {t.phone}: +358 XX XXX XXXX
+          </p>
         </section>
       </div>
 
@@ -80,6 +88,20 @@ function Restaurant() {
         <h2>{t.transport}</h2>
 
         <p>{t.transportInfo}</p>
+      </section>
+
+      <section className="restaurant-map">
+        <p className="section-small">FIND US</p>
+
+        <h2>{t.mapTitle}</h2>
+
+        <p>{t.mapAddress}</p>
+
+        <iframe
+          src="https://www.google.com/maps?q=Leiritie+1,+01600+Vantaa&output=embed"
+          title="Restaurant location"
+          loading="lazy"
+        ></iframe>
       </section>
     </div>
   );

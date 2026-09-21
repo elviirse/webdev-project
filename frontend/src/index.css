@@ -45,9 +45,6 @@ nav {
   color: #8a6d3b;
 }
 
-
-
-
 .hero {
   min-height: calc(100vh - 90px);
   padding: 40px 8%;
@@ -112,9 +109,6 @@ nav {
   background-color: #1d1d1b;
   color: white;
 }
-
-
-
 
 .today-section {
   width: 100%;
@@ -222,6 +216,7 @@ nav {
     padding: 28px;
   }
 }
+
 .hero {
   min-height: 90vh;
   display: flex;
@@ -245,11 +240,14 @@ nav {
   font-size: 48px;
   margin-bottom: 30px;
 }
+
 .allergens {
   margin-top: 18px;
   font-size: 13px;
   color: #666;
 }
+
+
 /* =========================
    LUNCH MENU PAGE
 ========================= */
@@ -321,6 +319,7 @@ nav {
   line-height: 1.7;
 }
 
+
 /* TODAY'S MENU */
 
 .today-card {
@@ -368,6 +367,8 @@ nav {
     padding: 25px;
   }
 }
+
+
 /* DISH DETAILS */
 
 .details-btn {
@@ -448,6 +449,8 @@ nav {
     font-size: 38px;
   }
 }
+
+
 /* =========================
    RESERVATION PAGE
 ========================= */
@@ -552,6 +555,8 @@ nav {
     gap: 0;
   }
 }
+
+
 /* RESTAURANT PAGE */
 
 .restaurant-page {
@@ -628,6 +633,8 @@ nav {
     padding: 25px;
   }
 }
+
+
 /* =========================
    FOOTER
 ========================= */
@@ -693,6 +700,8 @@ nav {
     gap: 35px;
   }
 }
+
+
 /* =========================
    RESPONSIVE NAVBAR
 ========================= */
@@ -730,6 +739,8 @@ nav {
     font-size: 13px;
   }
 }
+
+
 /* =========================
    LOADING & ERROR
 ========================= */
@@ -779,7 +790,10 @@ nav {
 .retry-btn:hover {
   background-color: #8a6d3b;
 }
+
+
 /* More space for 3 dishes inside each day card */
+
 .weekly-menu {
   max-width: 1100px;
   margin: 0 auto;
@@ -820,390 +834,70 @@ nav {
     padding: 18px 0;
   }
 }
-/* Navbar logo */
-.navbar-logo {
-  width: 120px;
-  height: 70px;
-  object-fit: contain;
-  display: block;
+
+
+/* RESTAURANT MAP */
+
+.restaurant-map {
+  margin-top: 50px;
 }
 
-nav .logo {
-  display: flex;
-  align-items: center;
-  text-decoration: none;
+.restaurant-map h2 {
+  font-size: 32px;
+  margin: 12px 0 10px;
 }
 
-@media (max-width: 768px) {
-  .navbar-logo {
-    width: 90px;
-    height: 55px;
-  }
+.restaurant-map p {
+  color: #555;
+  line-height: 1.7;
 }
-/* ========================================
-   LUXURY HOME PAGE
-======================================== */
 
-.home-luxury {
+.restaurant-map iframe {
   width: 100%;
-  margin: 0;
-  padding: 0;
+  height: 400px;
+  border: 0;
+  margin-top: 20px;
 }
 
-.luxury-hero {
-  position: relative;
-  min-height: calc(100vh - 120px);
-  display: flex;
-  align-items: center;
-  background-image: url("./assets/hero.png");
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
-  overflow: hidden;
-}
-
-/* Dark layer so white text stays readable */
-.hero-overlay {
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(
-    90deg,
-    rgba(12, 15, 10, 0.82) 0%,
-    rgba(12, 15, 10, 0.58) 42%,
-    rgba(12, 15, 10, 0.12) 72%,
-    rgba(12, 15, 10, 0.05) 100%
-  );
-}
-
-.luxury-hero-content {
-  position: relative;
-  z-index: 2;
-  width: min(760px, 90%);
-  margin-left: clamp(35px, 8vw, 140px);
-  padding: 80px 0;
-  color: #f8f3e8;
-}
-
-.luxury-hero-content h1 {
-  margin: 0;
-  font-family: Georgia, "Times New Roman", serif;
-  font-size: clamp(3.2rem, 5.6vw, 6.4rem);
-  line-height: 0.98;
-  font-weight: 400;
-  letter-spacing: -2px;
-}
-
-.luxury-hero-content h1 span {
-  display: block;
-}
-
-.luxury-hero-content h1 span + span {
-  margin-top: 12px;
-}
-
-/* Decorative line */
-.hero-ornament {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  width: 290px;
-  margin: 38px 0 28px;
-}
-
-.hero-ornament > span:not(.hero-leaf) {
-  display: block;
-  height: 1px;
-  flex: 1;
-  background: rgba(248, 243, 232, 0.75);
-}
-
-.hero-leaf {
-  font-size: 12px;
-  color: #f8f3e8;
-  transform: rotate(45deg);
-}
-
-.luxury-tagline {
-  margin-bottom: 38px;
-}
-
-.luxury-tagline p {
-  margin: 7px 0;
-  font-family: Georgia, "Times New Roman", serif;
-  font-size: 0.92rem;
-  letter-spacing: 5px;
-  line-height: 1.6;
-  color: #f4eee2;
-}
-
-.discover-menu-btn {
-  width: fit-content;
-  min-width: 285px;
-  min-height: 64px;
-  padding: 0 28px;
-  border: 1px solid rgba(255, 255, 255, 0.85);
-  border-radius: 40px;
-
-  display: inline-flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 35px;
-
-  color: #fff;
-  text-decoration: none;
-  font-family: Georgia, "Times New Roman", serif;
-  font-size: 0.92rem;
-  letter-spacing: 2px;
-
-  transition:
-    background 0.25s ease,
-    color 0.25s ease,
-    transform 0.25s ease;
-}
-
-.discover-menu-btn:hover {
-  background: #f7f2e7;
-  color: #283020;
-  transform: translateY(-2px);
-}
-
-.discover-arrow {
-  font-size: 1.5rem;
-  line-height: 1;
+@media (max-width: 768px) {
+  .restaurant-map iframe {
+    height: 300px;
+  }
 }
 
 
-/* ========================================
-   LARGE CIRCULAR NAVBAR LOGO
-======================================== */
+/* INSTAGRAM SECTION */
 
-nav {
-  min-height: 120px;
-  padding: 12px clamp(25px, 6vw, 100px);
-  background: #f7f3e9;
+.instagram-box {
+  background-color: #000000;
+  padding: 35px 8%;
+  margin-top: 0;
 }
 
-nav .logo {
-  flex-shrink: 0;
-}
-
-.navbar-logo {
-  width: 150px;
-  height: 150px;
-  object-fit: cover;
-  object-position: center;
-  border-radius: 50%;
-}
-
-
-/* ========================================
-   LANGUAGE SWITCH
-======================================== */
-
-.language-switcher {
-  display: flex;
-  align-items: center;
-  border: 1px solid #aaa795;
-  border-radius: 30px;
-  padding: 4px;
-  gap: 2px;
-}
-
-.language-switcher button {
-  border: none;
-  background: transparent;
-  color: #303327;
-  padding: 10px 16px;
-  border-radius: 24px;
-  cursor: pointer;
-  font-family: Georgia, "Times New Roman", serif;
-  font-size: 0.9rem;
-}
-
-.language-switcher span {
-  color: #777568;
-}
-
-.language-switcher .active-language {
-  background: #74775c;
+.instagram-content h3 {
   color: white;
+  font-size: 18px;
+  margin: 0 0 8px;
 }
 
-
-/* ========================================
-   MOBILE
-======================================== */
-
-@media (max-width: 768px) {
-
-  nav {
-    min-height: auto;
-    padding: 12px 18px;
-  }
-
-  .navbar-logo {
-    width: 90px;
-    height: 90px;
-  }
-
-  .luxury-hero {
-    min-height: 720px;
-    align-items: flex-end;
-    background-position: 62% center;
-  }
-
-  .hero-overlay {
-    background: linear-gradient(
-      0deg,
-      rgba(10, 12, 8, 0.92) 0%,
-      rgba(10, 12, 8, 0.62) 55%,
-      rgba(10, 12, 8, 0.18) 100%
-    );
-  }
-
-  .luxury-hero-content {
-    width: auto;
-    margin: 0;
-    padding: 60px 25px;
-  }
-
-  .luxury-hero-content h1 {
-    font-size: clamp(2.7rem, 12vw, 4.5rem);
-    letter-spacing: -1px;
-  }
-
-  .hero-ornament {
-    width: 200px;
-    margin: 28px 0 22px;
-  }
-
-  .luxury-tagline p {
-    font-size: 0.72rem;
-    letter-spacing: 3px;
-  }
-
-  .discover-menu-btn {
-    min-width: 240px;
-    min-height: 56px;
-    padding: 0 22px;
-    font-size: 0.75rem;
-  }
-}
-/* Final desktop hero sizing */
-.luxury-hero-content {
-  width: min(900px, 58vw);
-  margin-left: clamp(70px, 8vw, 150px);
+.instagram-content p {
+  color: #999;
+  font-size: 13px;
+  margin: 0 0 15px;
 }
 
-.luxury-hero-content h1 {
-  font-size: clamp(3.8rem, 5vw, 5.8rem);
-  line-height: 1.02;
-  letter-spacing: -2px;
-  white-space: nowrap;
-}
-
-/* Bigger reference-style navbar */
-nav {
-  min-height: 155px;
-  padding: 10px clamp(70px, 6vw, 120px);
-}
-
-.navbar-logo {
-  width: 165px;
-  height: 165px;
-  border-radius: 50%;
-  object-fit: cover;
-}
-
-/* Elegant navigation spacing */
-.nav-links {
-  gap: clamp(30px, 3vw, 58px);
-}
-
-.nav-links > a {
-  font-family: Georgia, "Times New Roman", serif;
-  font-size: 1rem;
-  letter-spacing: 0.5px;
-}
-
-/* Keep mobile behavior normal */
-@media (max-width: 768px) {
-  .luxury-hero-content {
-    width: auto;
-    margin: 0;
-  }
-
-  .luxury-hero-content h1 {
-    white-space: normal;
-  }
-
-  nav {
-    min-height: auto;
-    padding: 12px 18px;
-  }
-
-  .navbar-logo {
-    width: 90px;
-    height: 90px;
-  }
-}
-.nav-links > a {
-  position: relative;
-  padding: 12px 0;
-  color: #27291f;
-  text-decoration: none;
-}
-
-.nav-links > a.active::after {
-  content: "";
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 3px;
-  height: 3px;
-  border-radius: 10px;
-  background: #74775c;
-}
-.hero-leaf {
+.instagram-content a {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  font-family: Georgia, "Times New Roman", serif;
-  font-size: 24px;
-  color: #f8f3e8;
-  transform: none;
 }
 
-.hero-ornament {
-  gap: 14px;
-}
-/* Final navbar logo appearance */
-nav .logo {
-  width: 185px;
-  height: 145px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  overflow: hidden;
-}
-
-.navbar-logo {
-  width: 175px;
-  height: 175px;
-  object-fit: cover;
-  border-radius: 50%;
-  transform: scale(1.12);
+.instagram-content a:hover {
+  opacity: 0.7;
 }
 
 @media (max-width: 768px) {
-  nav .logo {
-    width: 100px;
-    height: 90px;
-  }
-
-  .navbar-logo {
-    width: 100px;
-    height: 100px;
-    transform: scale(1.05);
+  .instagram-box {
+    padding: 30px 5%;
   }
 }
