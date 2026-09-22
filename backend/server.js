@@ -5,6 +5,7 @@ import menuRoutes from "./routes/menuRoutes.js";
 import orderRoutes from "./routes/orderRoutes.js";
 import reservationRoutes from "./routes/reservationRoutes.js";
 import openingHoursRoutes from "./routes/openingHoursRoutes.js";
+import tableRoutes from "./routes/tableRoutes.js";
 
 const hostname = "127.0.0.1";
 const port = 3000;
@@ -25,6 +26,7 @@ app.use("/api/menu", menuRoutes);
 app.use("/api/orders", orderRoutes);
 app.use("/api/reservations", reservationRoutes);
 app.use("/api/opening-hours", openingHoursRoutes);
+app.use("/api/tables", tableRoutes);
 
 // Start server
 app.listen(port, hostname, () => {
