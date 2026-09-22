@@ -5,7 +5,8 @@
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
-    "dev": "nodemon server.js"
+    "dev": "nodemon server.js",
+    "apidoc": "apidoc -i routes/ -o docs/"
   },
   "keywords": [],
   "type": "module",
@@ -16,6 +17,7 @@
     "mysql2": "^3.24.4"
   },
   "devDependencies": {
+    "apidoc": "^1.2.0",
     "nodemon": "^3.1.14"
   }
 }
