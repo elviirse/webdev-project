@@ -21,6 +21,21 @@ export const createOrder = async (req, res) => {
   try {
     await connection.beginTransaction();
 
+    const [customers] = await connection.query(
+      `SELECT customer_id
+   FROM customer
+   WHERE customer_id = ?`,
+      [Number(customerId)],
+    );
+
+    if (customers.length === 0) {
+      await connection.rollback();
+
+      return res.status(404).json({
+        message: "Customer not found",
+      });
+    }
+
     let totalPrice = 0;
     const orderItems = [];
 
@@ -104,10 +119,10 @@ export const getAllOrders = async (req, res) => {
       SELECT
         order_id AS id,
         customer_id AS customerId,
-        order_date AS orderDate,
+        DATE_FORMAT(order_date, '%Y-%m-%d %H:%i:%s') AS orderDate,
         status,
         total_price AS totalPrice,
-        pickup_time AS pickupTime
+        DATE_FORMAT(pickup_time, '%Y-%m-%d %H:%i:%s') AS pickupTime
       FROM orders
       ORDER BY order_id
     `);
@@ -137,10 +152,10 @@ export const getOrderById = async (req, res) => {
       `SELECT
         order_id AS id,
         customer_id AS customerId,
-        order_date AS orderDate,
+        DATE_FORMAT(order_date, '%Y-%m-%d %H:%i:%s') AS orderDate,
         status,
         total_price AS totalPrice,
-        pickup_time AS pickupTime
+        DATE_FORMAT(pickup_time, '%Y-%m-%d %H:%i:%s') AS pickupTime
        FROM orders
        WHERE order_id = ?`,
       [id],

@@ -21,13 +21,15 @@ export const createReservation = async (req, res) => {
       });
     }
 
-    if (Number(numberOfGuests) < 1) {
+    const guests = Number(numberOfGuests);
+
+    if (!Number.isInteger(guests) || guests < 1) {
       return res.status(400).json({
         message: "Number of guests must be at least 1",
       });
     }
 
-    // Check that the customer exists
+    // Check that customer exists
     const [customers] = await pool.query(
       `SELECT customer_id
        FROM customer
@@ -41,7 +43,7 @@ export const createReservation = async (req, res) => {
       });
     }
 
-    // Check that the table exists
+    // Check that table exists
     const [tables] = await pool.query(
       `SELECT table_id, capacity, status
        FROM restaurant_table
@@ -55,12 +57,31 @@ export const createReservation = async (req, res) => {
       });
     }
 
-    if (Number(numberOfGuests) > tables[0].capacity) {
+    // Check table capacity
+    if (guests > Number(tables[0].capacity)) {
       return res.status(400).json({
         message: "Number of guests exceeds table capacity",
       });
     }
 
+    // Check whether table is already reserved
+    const [existingReservations] = await pool.query(
+      `SELECT reservation_id
+       FROM reservation
+       WHERE table_id = ?
+         AND reservation_date = ?
+         AND reservation_time = ?
+         AND status IN ('pending', 'confirmed')`,
+      [Number(tableId), date, time],
+    );
+
+    if (existingReservations.length > 0) {
+      return res.status(409).json({
+        message: "Table is already reserved for this date and time",
+      });
+    }
+
+    // Create reservation
     const [result] = await pool.query(
       `INSERT INTO reservation
        (
@@ -78,7 +99,7 @@ export const createReservation = async (req, res) => {
         Number(tableId),
         date,
         time,
-        Number(numberOfGuests),
+        guests,
         specialRequests || null,
         "pending",
       ],
@@ -90,7 +111,7 @@ export const createReservation = async (req, res) => {
       tableId: Number(tableId),
       date,
       time,
-      numberOfGuests: Number(numberOfGuests),
+      numberOfGuests: guests,
       specialRequests: specialRequests || null,
       status: "pending",
     });
@@ -111,7 +132,7 @@ export const getAllReservations = async (req, res) => {
         reservation_id AS id,
         customer_id AS customerId,
         table_id AS tableId,
-       DATE_FORMAT(reservation_date, '%Y-%m-%d') AS date,
+        DATE_FORMAT(reservation_date, '%Y-%m-%d') AS date,
         reservation_time AS time,
         guests AS numberOfGuests,
         special_request AS specialRequests,
