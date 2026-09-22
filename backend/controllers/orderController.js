@@ -16,15 +16,38 @@ export const createOrder = async (req, res) => {
     });
   }
 
-  const connection = await pool.getConnection();
+  // Pickup time validation
+  if (!pickupTime) {
+    return res.status(400).json({
+      message: "Pickup time is required",
+    });
+  }
+
+  const pickupDateTime = new Date(pickupTime);
+
+  if (Number.isNaN(pickupDateTime.getTime())) {
+    return res.status(400).json({
+      message: "Invalid pickup time",
+    });
+  }
+
+  if (pickupDateTime <= new Date()) {
+    return res.status(400).json({
+      message: "Pickup time must be in the future",
+    });
+  }
+
+  let connection;
 
   try {
+    connection = await pool.getConnection();
     await connection.beginTransaction();
 
+    // Check customer
     const [customers] = await connection.query(
       `SELECT customer_id
-   FROM customer
-   WHERE customer_id = ?`,
+       FROM customer
+       WHERE customer_id = ?`,
       [Number(customerId)],
     );
 
@@ -39,6 +62,7 @@ export const createOrder = async (req, res) => {
     let totalPrice = 0;
     const orderItems = [];
 
+    // Validate items and calculate total using DB prices
     for (const item of items) {
       const menuItemId = Number(item.menuItemId);
       const quantity = Number(item.quantity);
@@ -73,13 +97,15 @@ export const createOrder = async (req, res) => {
       });
     }
 
+    // Create order
     const [orderResult] = await connection.query(
       `INSERT INTO orders
        (customer_id, status, total_price, pickup_time)
        VALUES (?, ?, ?, ?)`,
-      [Number(customerId), "pending", totalPrice, pickupTime || null],
+      [Number(customerId), "pending", totalPrice, pickupTime],
     );
 
+    // Create order items
     for (const item of orderItems) {
       await connection.query(
         `INSERT INTO order_item
@@ -95,20 +121,38 @@ export const createOrder = async (req, res) => {
       id: orderResult.insertId,
       customerId: Number(customerId),
       items: orderItems,
-      pickupTime: pickupTime || null,
+      pickupTime,
       status: "pending",
       totalPrice,
     });
   } catch (error) {
-    await connection.rollback();
+    if (connection) {
+      await connection.rollback();
+    }
 
     console.error("Error creating order:", error);
 
-    res.status(400).json({
-      message: error.message,
+    const validationErrors = [
+      "Invalid menu item ID",
+      "Quantity must be at least 1",
+    ];
+
+    if (
+      validationErrors.includes(error.message) ||
+      error.message.startsWith("Menu item ")
+    ) {
+      return res.status(400).json({
+        message: error.message,
+      });
+    }
+
+    res.status(500).json({
+      message: "Failed to create order",
     });
   } finally {
-    connection.release();
+    if (connection) {
+      connection.release();
+    }
   }
 };
 
