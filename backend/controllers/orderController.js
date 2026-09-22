@@ -1,134 +1,232 @@
-import { menu } from "./menuController.js";
+import pool from "../config/db.js";
 
-// Temporary order data
-let orders = [];
-let nextOrderId = 1;
-
-// Create new order
-export const createOrder = (req, res) => {
+// POST /api/orders
+export const createOrder = async (req, res) => {
   const { customerId, items, pickupTime } = req.body;
 
-  if (
-    !customerId ||
-    Number(customerId) < 1 ||
-    !Array.isArray(items) ||
-    items.length === 0
-  ) {
+  if (!customerId || Number(customerId) < 1) {
     return res.status(400).json({
-      message: "Valid customer ID and at least one order item are required",
+      message: "Valid customer ID is required",
     });
   }
 
-  let totalPrice = 0;
-  const orderItems = [];
+  if (!Array.isArray(items) || items.length === 0) {
+    return res.status(400).json({
+      message: "Order must contain at least one item",
+    });
+  }
 
-  for (const item of items) {
-    const menuItem = menu.find((food) => food.id === Number(item.menuItemId));
+  const connection = await pool.getConnection();
 
-    if (!menuItem) {
-      return res.status(400).json({
-        message: `Menu item ${item.menuItemId} not found`,
+  try {
+    await connection.beginTransaction();
+
+    let totalPrice = 0;
+    const orderItems = [];
+
+    for (const item of items) {
+      const menuItemId = Number(item.menuItemId);
+      const quantity = Number(item.quantity);
+
+      if (!Number.isInteger(menuItemId) || menuItemId < 1) {
+        throw new Error("Invalid menu item ID");
+      }
+
+      if (!Number.isInteger(quantity) || quantity < 1) {
+        throw new Error("Quantity must be at least 1");
+      }
+
+      const [menuRows] = await connection.query(
+        `SELECT menu_item_id, price
+         FROM menu_item
+         WHERE menu_item_id = ?`,
+        [menuItemId],
+      );
+
+      if (menuRows.length === 0) {
+        throw new Error(`Menu item ${menuItemId} not found`);
+      }
+
+      const price = Number(menuRows[0].price);
+
+      totalPrice += price * quantity;
+
+      orderItems.push({
+        menuItemId,
+        quantity,
+        price,
       });
     }
 
-    const quantity = Number(item.quantity);
+    const [orderResult] = await connection.query(
+      `INSERT INTO orders
+       (customer_id, status, total_price, pickup_time)
+       VALUES (?, ?, ?, ?)`,
+      [Number(customerId), "pending", totalPrice, pickupTime || null],
+    );
 
-    if (!quantity || quantity < 1) {
+    for (const item of orderItems) {
+      await connection.query(
+        `INSERT INTO order_item
+         (order_id, menu_item_id, quantity, price)
+         VALUES (?, ?, ?, ?)`,
+        [orderResult.insertId, item.menuItemId, item.quantity, item.price],
+      );
+    }
+
+    await connection.commit();
+
+    res.status(201).json({
+      id: orderResult.insertId,
+      customerId: Number(customerId),
+      items: orderItems,
+      pickupTime: pickupTime || null,
+      status: "pending",
+      totalPrice,
+    });
+  } catch (error) {
+    await connection.rollback();
+
+    console.error("Error creating order:", error);
+
+    res.status(400).json({
+      message: error.message,
+    });
+  } finally {
+    connection.release();
+  }
+};
+
+// GET /api/orders
+export const getAllOrders = async (req, res) => {
+  try {
+    const [rows] = await pool.query(`
+      SELECT
+        order_id AS id,
+        customer_id AS customerId,
+        order_date AS orderDate,
+        status,
+        total_price AS totalPrice,
+        pickup_time AS pickupTime
+      FROM orders
+      ORDER BY order_id
+    `);
+
+    res.json(rows);
+  } catch (error) {
+    console.error("Error fetching orders:", error);
+
+    res.status(500).json({
+      message: "Failed to fetch orders",
+    });
+  }
+};
+
+// GET /api/orders/:id
+export const getOrderById = async (req, res) => {
+  try {
+    const id = Number(req.params.id);
+
+    if (!Number.isInteger(id) || id < 1) {
       return res.status(400).json({
-        message: "Quantity must be at least 1",
+        message: "Invalid order ID",
       });
     }
 
-    totalPrice += menuItem.price * quantity;
+    const [orders] = await pool.query(
+      `SELECT
+        order_id AS id,
+        customer_id AS customerId,
+        order_date AS orderDate,
+        status,
+        total_price AS totalPrice,
+        pickup_time AS pickupTime
+       FROM orders
+       WHERE order_id = ?`,
+      [id],
+    );
 
-    orderItems.push({
-      menuItemId: menuItem.id,
-      name: menuItem.name,
-      price: menuItem.price,
-      quantity,
+    if (orders.length === 0) {
+      return res.status(404).json({
+        message: "Order not found",
+      });
+    }
+
+    const [items] = await pool.query(
+      `SELECT
+        oi.menu_item_id AS menuItemId,
+        mi.name,
+        oi.quantity,
+        oi.price
+       FROM order_item oi
+       JOIN menu_item mi
+         ON oi.menu_item_id = mi.menu_item_id
+       WHERE oi.order_id = ?`,
+      [id],
+    );
+
+    res.json({
+      ...orders[0],
+      items,
+    });
+  } catch (error) {
+    console.error("Error fetching order:", error);
+
+    res.status(500).json({
+      message: "Failed to fetch order",
     });
   }
-
-  const newOrder = {
-    id: nextOrderId++,
-    customerId,
-    items: orderItems,
-    pickupTime,
-    totalPrice: Number(totalPrice.toFixed(2)),
-    status: "pending",
-    createdAt: new Date(),
-  };
-
-  orders.push(newOrder);
-
-  res.status(201).json({
-    message: "Order created successfully",
-    order: newOrder,
-  });
 };
 
-// Get all orders
-export const getAllOrders = (req, res) => {
-  res.json(orders);
-};
+// PATCH /api/orders/:id/status
+export const updateOrderStatus = async (req, res) => {
+  try {
+    const id = Number(req.params.id);
+    const { status } = req.body || {};
 
-// Get order by ID
-export const getOrderById = (req, res) => {
-  const id = Number(req.params.id);
-  if (!Number.isInteger(id) || id < 1) {
-    return res.status(400).json({
-      message: "Invalid order ID",
+    if (!Number.isInteger(id) || id < 1) {
+      return res.status(400).json({
+        message: "Invalid order ID",
+      });
+    }
+
+    const allowedStatuses = [
+      "pending",
+      "preparing",
+      "ready",
+      "completed",
+      "cancelled",
+    ];
+
+    if (!allowedStatuses.includes(status)) {
+      return res.status(400).json({
+        message: "Invalid order status",
+      });
+    }
+
+    const [result] = await pool.query(
+      `UPDATE orders
+       SET status = ?
+       WHERE order_id = ?`,
+      [status, id],
+    );
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({
+        message: "Order not found",
+      });
+    }
+
+    res.json({
+      id,
+      status,
+      message: "Order status updated successfully",
+    });
+  } catch (error) {
+    console.error("Error updating order status:", error);
+
+    res.status(500).json({
+      message: "Failed to update order status",
     });
   }
-
-  const order = orders.find((order) => order.id === id);
-
-  if (!order) {
-    return res.status(404).json({
-      message: "Order not found",
-    });
-  }
-
-  res.json(order);
-};
-
-// Update order status
-export const updateOrderStatus = (req, res) => {
-  const id = Number(req.params.id);
-  const { status } = req.body || {};
-
-  if (!Number.isInteger(id) || id < 1) {
-    return res.status(400).json({
-      message: "Invalid order ID",
-    });
-  }
-
-  const allowedStatuses = [
-    "pending",
-    "preparing",
-    "ready",
-    "completed",
-    "cancelled",
-  ];
-
-  const order = orders.find((order) => order.id === id);
-
-  if (!order) {
-    return res.status(404).json({
-      message: "Order not found",
-    });
-  }
-
-  if (!allowedStatuses.includes(status)) {
-    return res.status(400).json({
-      message: "Invalid order status",
-    });
-  }
-
-  order.status = status;
-
-  res.json({
-    message: "Order status updated successfully",
-    order,
-  });
 };

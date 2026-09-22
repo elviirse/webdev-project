@@ -1,54 +1,156 @@
-import fs from "fs";
-import path from "path";
-import { fileURLToPath } from "url";
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
-// Temporary JSON data.
-// Later this will be replaced with Sakib's MySQL database.
-const menuPath = path.join(__dirname, "../data/menu.json");
-
-export const menu = JSON.parse(fs.readFileSync(menuPath, "utf-8"));
+import pool from "../config/db.js";
 
 // GET /api/menu
-export const getAllMenuItems = (req, res) => {
-  res.json(menu);
+export const getAllMenuItems = async (req, res) => {
+  try {
+    const [rows] = await pool.query(`
+      SELECT
+        menu_item_id AS id,
+        name,
+        name_fi AS nameFi,
+        description,
+        description_fi AS descriptionFi,
+        price,
+        day_of_week AS dayOfWeek,
+        gluten_free AS glutenFree,
+        lactose_free AS lactoseFree,
+        vegetarian,
+        vegan
+      FROM menu_item
+      ORDER BY menu_item_id
+    `);
+
+    res.json(rows);
+  } catch (error) {
+    console.error("Error fetching menu:", error);
+
+    res.status(500).json({
+      message: "Failed to fetch menu",
+    });
+  }
 };
 
 // GET /api/menu/today
-export const getTodayMenu = (req, res) => {
-  const today = new Date().toLocaleDateString("en-US", {
-    weekday: "long",
-  });
+export const getTodayMenu = async (req, res) => {
+  try {
+    const today = new Date().toLocaleDateString("en-US", {
+      weekday: "long",
+    });
 
-  const todayMenu = menu.find((dayMenu) => dayMenu.day === today);
+    const [rows] = await pool.query(
+      `
+      SELECT
+        menu_item_id AS id,
+        name,
+        name_fi AS nameFi,
+        description,
+        description_fi AS descriptionFi,
+        price,
+        day_of_week AS dayOfWeek,
+        gluten_free AS glutenFree,
+        lactose_free AS lactoseFree,
+        vegetarian,
+        vegan
+      FROM menu_item
+      WHERE day_of_week = ?
+      ORDER BY menu_item_id
+      `,
+      [today],
+    );
 
-  res.json({
-    day: today,
-    dishes: todayMenu ? todayMenu.dishes : [],
-  });
+    res.json({
+      day: today,
+      dishes: rows,
+    });
+  } catch (error) {
+    console.error("Error fetching today's menu:", error);
+
+    res.status(500).json({
+      message: "Failed to fetch today's menu",
+    });
+  }
 };
 
 // GET /api/menu/:id
-export const getMenuItemById = (req, res) => {
-  const id = Number(req.params.id);
+export const getMenuItemById = async (req, res) => {
+  try {
+    const id = Number(req.params.id);
 
-  if (!Number.isInteger(id) || id < 1) {
-    return res.status(400).json({
-      message: "Invalid menu item ID",
+    if (!Number.isInteger(id) || id < 1) {
+      return res.status(400).json({
+        message: "Invalid menu item ID",
+      });
+    }
+
+    // Get menu item
+    const [rows] = await pool.query(
+      `
+      SELECT
+        menu_item_id AS id,
+        name,
+        name_fi AS nameFi,
+        description,
+        description_fi AS descriptionFi,
+        price,
+        day_of_week AS dayOfWeek,
+        gluten_free AS glutenFree,
+        lactose_free AS lactoseFree,
+        vegetarian,
+        vegan
+      FROM menu_item
+      WHERE menu_item_id = ?
+      `,
+      [id],
+    );
+
+    if (rows.length === 0) {
+      return res.status(404).json({
+        message: "Menu item not found",
+      });
+    }
+
+    // Get ingredients
+    const [ingredients] = await pool.query(
+      `
+      SELECT
+        i.ingredient_id AS id,
+        i.name,
+        i.name_fi AS nameFi
+      FROM ingredients i
+      JOIN menu_item_ingredient mii
+        ON i.ingredient_id = mii.ingredient_id
+      WHERE mii.menu_item_id = ?
+      `,
+      [id],
+    );
+
+    // Get allergens
+    const [allergens] = await pool.query(
+      `
+      SELECT DISTINCT
+        a.allergen_id AS id,
+        a.name,
+        a.name_fi AS nameFi
+      FROM allergen a
+      JOIN ingredient_allergen ia
+        ON a.allergen_id = ia.allergen_id
+      JOIN menu_item_ingredient mii
+        ON ia.ingredient_id = mii.ingredient_id
+      WHERE mii.menu_item_id = ?
+      `,
+      [id],
+    );
+
+    res.json({
+      ...rows[0],
+      ingredients,
+      allergens,
+    });
+  } catch (error) {
+    console.error("Error fetching menu item:", error);
+
+    res.status(500).json({
+      message: "Failed to fetch menu item",
     });
   }
-
-  const allDishes = menu.flatMap((dayMenu) => dayMenu.dishes);
-
-  const item = allDishes.find((dish) => dish.id === id);
-
-  if (!item) {
-    return res.status(404).json({
-      message: "Menu item not found",
-    });
-  }
-
-  res.json(item);
 };
