@@ -6,6 +6,7 @@ export const createReservation = async (req, res) => {
     const { customerId, tableId, date, time, numberOfGuests, specialRequests } =
       req.body;
 
+    // Required fields
     if (
       !customerId ||
       Number(customerId) < 1 ||
@@ -21,6 +22,7 @@ export const createReservation = async (req, res) => {
       });
     }
 
+    // Guest validation
     const guests = Number(numberOfGuests);
 
     if (!Number.isInteger(guests) || guests < 1) {
@@ -29,7 +31,46 @@ export const createReservation = async (req, res) => {
       });
     }
 
-    // Check that customer exists
+    // Date and time format validation
+    const datePattern = /^\d{4}-\d{2}-\d{2}$/;
+    const timePattern = /^([01]\d|2[0-3]):[0-5]\d(?::[0-5]\d)?$/;
+
+    if (!datePattern.test(date) || !timePattern.test(time)) {
+      return res.status(400).json({
+        message: "Invalid date or time format",
+      });
+    }
+
+    // Check that the date itself is valid
+    const [year, month, day] = date.split("-").map(Number);
+
+    const validDate = new Date(year, month - 1, day);
+
+    if (
+      validDate.getFullYear() !== year ||
+      validDate.getMonth() !== month - 1 ||
+      validDate.getDate() !== day
+    ) {
+      return res.status(400).json({
+        message: "Invalid reservation date",
+      });
+    }
+
+    // Prevent reservations in the past
+    const normalizedTime = time.length === 5 ? `${time}:00` : time;
+
+    const reservationDateTime = new Date(`${date}T${normalizedTime}`);
+
+    if (
+      Number.isNaN(reservationDateTime.getTime()) ||
+      reservationDateTime <= new Date()
+    ) {
+      return res.status(400).json({
+        message: "Reservation date and time must be in the future",
+      });
+    }
+
+    // Check customer
     const [customers] = await pool.query(
       `SELECT customer_id
        FROM customer
@@ -43,7 +84,7 @@ export const createReservation = async (req, res) => {
       });
     }
 
-    // Check that table exists
+    // Check table
     const [tables] = await pool.query(
       `SELECT table_id, capacity, status
        FROM restaurant_table
@@ -57,6 +98,13 @@ export const createReservation = async (req, res) => {
       });
     }
 
+    // Check table status
+    if (tables[0].status !== "available") {
+      return res.status(400).json({
+        message: "Table is not available",
+      });
+    }
+
     // Check table capacity
     if (guests > Number(tables[0].capacity)) {
       return res.status(400).json({
@@ -64,7 +112,7 @@ export const createReservation = async (req, res) => {
       });
     }
 
-    // Check whether table is already reserved
+    // Check double booking
     const [existingReservations] = await pool.query(
       `SELECT reservation_id
        FROM reservation
@@ -72,7 +120,7 @@ export const createReservation = async (req, res) => {
          AND reservation_date = ?
          AND reservation_time = ?
          AND status IN ('pending', 'confirmed')`,
-      [Number(tableId), date, time],
+      [Number(tableId), date, normalizedTime],
     );
 
     if (existingReservations.length > 0) {
@@ -98,7 +146,7 @@ export const createReservation = async (req, res) => {
         Number(customerId),
         Number(tableId),
         date,
-        time,
+        normalizedTime,
         guests,
         specialRequests || null,
         "pending",
@@ -110,7 +158,7 @@ export const createReservation = async (req, res) => {
       customerId: Number(customerId),
       tableId: Number(tableId),
       date,
-      time,
+      time: normalizedTime,
       numberOfGuests: guests,
       specialRequests: specialRequests || null,
       status: "pending",
