@@ -41,7 +41,7 @@ VALUES
 (1, 2, '2026-10-01', '13:00:00', 2, 'No special request', 'confirmed'),
 (2, 1, '2026-10-02', '14:00:00', 2, 'No special request', 'pending');
 
-INSERT INTO menu_item_ingredients (menu_item_id, ingredient_id) VALUES
+INSERT INTO menu_item_ingredient (menu_item_id, ingredient_id) VALUES
 (1, 1),
 (1, 2),
 (2, 2),
@@ -49,7 +49,20 @@ INSERT INTO menu_item_ingredients (menu_item_id, ingredient_id) VALUES
 (3, 3),
 (3, 4);
 
-INSERT INTO ingredients_allergen (ingredient_id, allergen_id) VALUES
+INSERT INTO ingredient_allergen (ingredient_id, allergen_id) VALUES
 (1, 1),
 (2, 2),
 (3, 3);
+
+INSERT INTO orders
+(customer_id, status, total_price)
+VALUES
+(1, 'confirmed', 25.00),
+(2, 'pending', 20.00);
+
+INSERT INTO order_item
+(order_id, menu_item_id, quantity, price)
+VALUES
+(1, 1, 1, 10.00),
+(1, 2, 1, 15.00),
+(2, 3, 1, 20.00);
