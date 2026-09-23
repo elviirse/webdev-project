@@ -1,0 +1,222 @@
+[
+  {
+    "day": "Monday",
+    "dishes": [
+      {
+        "id": 1,
+        "name": "Salmon Tikka & Dill Potatoes",
+        "nameFi": "Lohitikka ja tilliperunat",
+        "description": "Finnish salmon marinated with Indian spices, served with roasted dill potatoes and seasonal vegetables.",
+        "descriptionFi": "Suomalaista lohta marinoituna intialaisilla mausteilla, tarjoiltuna paahdettujen tilliperunoiden ja kauden vihannesten kanssa.",
+        "price": 18.90,
+        "dietary": ["GF", "LF"],
+        "allergens": ["Fish"],
+        "allergensFi": ["Kala"],
+        "ingredients": ["Finnish salmon", "Potatoes", "Fresh dill", "Lemon", "Garam masala", "Garlic", "Seasonal vegetables"],
+        "ingredientsFi": ["Suomalainen lohi", "Perunat", "Tuore tilli", "Sitruuna", "Garam masala", "Valkosipuli", "Kauden vihannekset"]
+      },
+      {
+        "id": 2,
+        "name": "Paneer & Nordic Vegetable Curry",
+        "nameFi": "Paneer ja pohjoismainen kasviscurry",
+        "description": "Paneer cooked with seasonal Nordic vegetables in a mild Indian curry sauce, served with basmati rice.",
+        "descriptionFi": "Paneeria ja kauden pohjoismaisia vihanneksia miedossa intialaisessa currykastikkeessa, tarjoiltuna basmatiriisin kanssa.",
+        "price": 16.90,
+        "dietary": ["V", "GF"],
+        "allergens": ["Milk"],
+        "allergensFi": ["Maito"],
+        "ingredients": ["Paneer", "Carrot", "Cabbage", "Basmati rice", "Tomato", "Cumin", "Turmeric"],
+        "ingredientsFi": ["Paneer", "Porkkana", "Kaali", "Basmatiriisi", "Tomaatti", "Juustokumina", "Kurkuma"]
+      },
+      {
+        "id": 3,
+        "name": "Chicken Masala & Barley",
+        "nameFi": "Kanamasala ja ohra",
+        "description": "Spiced chicken masala served with Finnish pearl barley and fresh herbs.",
+        "descriptionFi": "Mausteista kanamasalaa tarjoiltuna suomalaisen ohran ja tuoreiden yrttien kanssa.",
+        "price": 17.50,
+        "dietary": ["LF"],
+        "allergens": ["Gluten"],
+        "allergensFi": ["Gluteeni"],
+        "ingredients": ["Chicken", "Pearl barley", "Tomato", "Onion", "Ginger", "Garlic", "Indian spices"],
+        "ingredientsFi": ["Kana", "Helmiohra", "Tomaatti", "Sipuli", "Inkivääri", "Valkosipuli", "Intialaiset mausteet"]
+      }
+    ]
+  },
+  {
+    "day": "Tuesday",
+    "dishes": [
+      {
+        "id": 4,
+        "name": "Butter Chicken & Basmati Rice",
+        "nameFi": "Butter chicken ja basmatiriisi",
+        "description": "Tender chicken cooked in a creamy tomato and Indian spice sauce, served with fragrant basmati rice.",
+        "descriptionFi": "Mureaa kanaa kermaisessa tomaatti-intialaisessa maustekastikkeessa, tarjoiltuna aromaattisen basmatiriisin kanssa.",
+        "price": 17.90,
+        "dietary": ["GF"],
+        "allergens": ["Milk"],
+        "allergensFi": ["Maito"],
+        "ingredients": ["Chicken", "Basmati rice", "Tomato", "Cream", "Butter", "Garam masala", "Ginger", "Garlic"],
+        "ingredientsFi": ["Kana", "Basmatiriisi", "Tomaatti", "Kerma", "Voi", "Garam masala", "Inkivääri", "Valkosipuli"]
+      },
+      {
+        "id": 5,
+        "name": "Tandoori Salmon Bowl",
+        "nameFi": "Tandoorilohikulho",
+        "description": "Tandoori-spiced Finnish salmon with basmati rice, cucumber, herbs and a fresh yogurt sauce.",
+        "descriptionFi": "Tandoorimaustettua suomalaista lohta, basmatiriisiä, kurkkua, yrttejä ja raikasta jogurttikastiketta.",
+        "price": 19.50,
+        "dietary": ["GF"],
+        "allergens": ["Fish", "Milk"],
+        "allergensFi": ["Kala", "Maito"],
+        "ingredients": ["Finnish salmon", "Basmati rice", "Cucumber", "Yogurt", "Lemon", "Tandoori spices"],
+        "ingredientsFi": ["Suomalainen lohi", "Basmatiriisi", "Kurkku", "Jogurtti", "Sitruuna", "Tandoorimausteet"]
+      },
+      {
+        "id": 6,
+        "name": "Lentil Dal & Roasted Root Vegetables",
+        "nameFi": "Linssidal ja paahdetut juurekset",
+        "description": "Creamy lentil dal served with Finnish roasted root vegetables and fragrant basmati rice.",
+        "descriptionFi": "Kermaista linssidalia tarjoiltuna suomalaisten paahdettujen juuresten ja aromaattisen basmatiriisin kanssa.",
+        "price": 15.90,
+        "dietary": ["VE", "GF"],
+        "allergens": [],
+        "allergensFi": [],
+        "ingredients": ["Lentils", "Carrot", "Parsnip", "Basmati rice", "Tomato", "Turmeric", "Cumin"],
+        "ingredientsFi": ["Linssit", "Porkkana", "Palsternakka", "Basmatiriisi", "Tomaatti", "Kurkuma", "Juustokumina"]
+      }
+    ]
+  },
+  {
+    "day": "Wednesday",
+    "dishes": [
+      {
+        "id": 7,
+        "name": "Masala Lohikeitto",
+        "nameFi": "Masala-lohikeitto",
+        "description": "Finnish salmon soup inspired by Indian spices, with potatoes, leek, dill and a gently spiced creamy broth.",
+        "descriptionFi": "Intialaisista mausteista inspiraationsa saanut suomalainen lohikeitto, jossa on perunaa, purjoa, tilliä ja miedosti maustettu kermainen liemi.",
+        "price": 18.50,
+        "dietary": ["GF"],
+        "allergens": ["Fish", "Milk"],
+        "allergensFi": ["Kala", "Maito"],
+        "ingredients": ["Finnish salmon", "Potatoes", "Leek", "Cream", "Fresh dill", "Turmeric", "Cumin"],
+        "ingredientsFi": ["Suomalainen lohi", "Perunat", "Purjo", "Kerma", "Tuore tilli", "Kurkuma", "Juustokumina"]
+      },
+      {
+        "id": 8,
+        "name": "Reindeer Keema & Potatoes",
+        "nameFi": "Porokeema ja perunat",
+        "description": "Finnish reindeer prepared keema-style with warming spices and served with roasted potatoes.",
+        "descriptionFi": "Suomalaista poroa keema-tyyliin lämpimillä mausteilla, tarjoiltuna paahdettujen perunoiden kanssa.",
+        "price": 21.90,
+        "dietary": ["GF", "LF"],
+        "allergens": [],
+        "allergensFi": [],
+        "ingredients": ["Finnish reindeer", "Potatoes", "Peas", "Tomato", "Onion", "Garam masala"],
+        "ingredientsFi": ["Suomalainen poro", "Perunat", "Herneet", "Tomaatti", "Sipuli", "Garam masala"]
+      },
+      {
+        "id": 9,
+        "name": "Spinach Dal & Rye Flatbread",
+        "nameFi": "Pinaattidal ja ruisleipä",
+        "description": "Comforting lentil and spinach dal served with a Nordic-inspired rye flatbread.",
+        "descriptionFi": "Täyteläistä linssi-pinaattidalia tarjoiltuna pohjoismaistyylisen ruisleivän kanssa.",
+        "price": 15.90,
+        "dietary": ["VE"],
+        "allergens": ["Gluten"],
+        "allergensFi": ["Gluteeni"],
+        "ingredients": ["Lentils", "Spinach", "Tomato", "Rye flour", "Garlic", "Cumin", "Turmeric"],
+        "ingredientsFi": ["Linssit", "Pinaatti", "Tomaatti", "Ruisjauho", "Valkosipuli", "Juustokumina", "Kurkuma"]
+      }
+    ]
+  },
+  {
+    "day": "Thursday",
+    "dishes": [
+      {
+        "id": 10,
+        "name": "Palak Paneer & Roasted Potatoes",
+        "nameFi": "Palak paneer ja paahdetut perunat",
+        "description": "Indian cottage cheese in a spiced spinach sauce, served with Finnish roasted potatoes.",
+        "descriptionFi": "Intialaista paneerjuustoa mausteisessa pinaattikastikkeessa, tarjoiltuna suomalaisten paahdettujen perunoiden kanssa.",
+        "price": 16.90,
+        "dietary": ["V", "GF"],
+        "allergens": ["Milk"],
+        "allergensFi": ["Maito"],
+        "ingredients": ["Paneer", "Spinach", "Finnish potatoes", "Tomato", "Onion", "Garlic", "Cumin"],
+        "ingredientsFi": ["Paneer", "Pinaatti", "Suomalaiset perunat", "Tomaatti", "Sipuli", "Valkosipuli", "Juustokumina"]
+      },
+      {
+        "id": 11,
+        "name": "Chicken Tikka & Nordic Slaw",
+        "nameFi": "Kanatikka ja pohjoismainen kaalisalaatti",
+        "description": "Grilled chicken tikka served with a crisp Nordic cabbage slaw and basmati rice.",
+        "descriptionFi": "Grillattua kanatikkaa tarjoiltuna rapean pohjoismaisen kaalisalaatin ja basmatiriisin kanssa.",
+        "price": 17.90,
+        "dietary": ["GF"],
+        "allergens": ["Milk"],
+        "allergensFi": ["Maito"],
+        "ingredients": ["Chicken", "Cabbage", "Carrot", "Basmati rice", "Yogurt", "Tikka spices"],
+        "ingredientsFi": ["Kana", "Kaali", "Porkkana", "Basmatiriisi", "Jogurtti", "Tikkamausteet"]
+      },
+      {
+        "id": 12,
+        "name": "Mushroom Masala & Barley",
+        "nameFi": "Sienimasala ja ohra",
+        "description": "Finnish mushrooms cooked in a rich masala sauce and served with pearl barley.",
+        "descriptionFi": "Suomalaisia sieniä täyteläisessä masalakastikkeessa, tarjoiltuna helmi-ohran kanssa.",
+        "price": 16.50,
+        "dietary": ["VE"],
+        "allergens": ["Gluten"],
+        "allergensFi": ["Gluteeni"],
+        "ingredients": ["Finnish mushrooms", "Pearl barley", "Tomato", "Onion", "Garlic", "Garam masala"],
+        "ingredientsFi": ["Suomalaiset sienet", "Helmiohra", "Tomaatti", "Sipuli", "Valkosipuli", "Garam masala"]
+      }
+    ]
+  },
+  {
+    "day": "Friday",
+    "dishes": [
+      {
+        "id": 13,
+        "name": "Reindeer Masala & Root Vegetables",
+        "nameFi": "Poromasala ja juurekset",
+        "description": "Finnish reindeer cooked with warming Indian spices and served with seasonal roasted root vegetables.",
+        "descriptionFi": "Suomalaista poroa lämpimillä intialaisilla mausteilla, tarjoiltuna kauden paahdettujen juuresten kanssa.",
+        "price": 22.90,
+        "dietary": ["GF", "LF"],
+        "allergens": [],
+        "allergensFi": [],
+        "ingredients": ["Finnish reindeer", "Carrot", "Parsnip", "Onion", "Tomato", "Garam masala", "Fresh herbs"],
+        "ingredientsFi": ["Suomalainen poro", "Porkkana", "Palsternakka", "Sipuli", "Tomaatti", "Garam masala", "Tuoreet yrtit"]
+      },
+      {
+        "id": 14,
+        "name": "Salmon Curry & Dill Rice",
+        "nameFi": "Lohicurry ja tilliriisi",
+        "description": "Finnish salmon in a gently spiced curry sauce, served with fragrant dill basmati rice.",
+        "descriptionFi": "Suomalaista lohta miedosti maustetussa currykastikkeessa, tarjoiltuna aromaattisen tilli-basmatiriisin kanssa.",
+        "price": 19.90,
+        "dietary": ["GF", "LF"],
+        "allergens": ["Fish"],
+        "allergensFi": ["Kala"],
+        "ingredients": ["Finnish salmon", "Basmati rice", "Fresh dill", "Coconut milk", "Tomato", "Curry spices"],
+        "ingredientsFi": ["Suomalainen lohi", "Basmatiriisi", "Tuore tilli", "Kookosmaito", "Tomaatti", "Currymausteet"]
+      },
+      {
+        "id": 15,
+        "name": "Roasted Cauliflower Tikka",
+        "nameFi": "Paahdettu kukkakaal tikka",
+        "description": "Tikka-spiced roasted cauliflower served with chickpeas, basmati rice and fresh herb chutney.",
+        "descriptionFi": "Tikkamaustettua paahdettua kukkakaalia tarjoiltuna kikherneiden, basmatiriisin ja tuoreen yrttichutneyn kanssa.",
+        "price": 15.90,
+        "dietary": ["VE", "GF"],
+        "allergens": [],
+        "allergensFi": [],
+        "ingredients": ["Cauliflower", "Chickpeas", "Basmati rice", "Coriander", "Mint", "Lemon", "Tikka spices"],
+        "ingredientsFi": ["Kukkakaali", "Kikherneet", "Basmatiriisi", "Korianteri", "Minttu", "Sitruuna", "Tikkamausteet"]
+      }
+    ]
+  }
+]
