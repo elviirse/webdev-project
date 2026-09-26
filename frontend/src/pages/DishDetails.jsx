@@ -1,10 +1,15 @@
+import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
-import menuData from "../data/menu.json";
 import { useLanguage } from "../LanguageContext.jsx";
+import api from "../services/api.js";
 
 function DishDetails() {
   const { id } = useParams();
   const { language } = useLanguage();
+
+  const [dish, setDish] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
   const text = {
     en: {
@@ -15,6 +20,7 @@ function DishDetails() {
       allergens: "Allergens",
       noAllergens: "No listed allergens",
       dishDetails: "DISH DETAILS",
+      loading: "Loading dish...",
       days: {
         Monday: "Monday",
         Tuesday: "Tuesday",
@@ -32,6 +38,7 @@ function DishDetails() {
       allergens: "Allergeenit",
       noAllergens: "Ei ilmoitettuja allergeeneja",
       dishDetails: "ANNOKSEN TIEDOT",
+      loading: "Ladataan annosta...",
       days: {
         Monday: "Maanantai",
         Tuesday: "Tiistai",
@@ -44,15 +51,37 @@ function DishDetails() {
 
   const t = text[language];
 
-  const dayMenu = menuData.find((day) =>
-    day.dishes.some((dish) => dish.id === Number(id))
-  );
+  useEffect(() => {
+    const fetchDish = async () => {
+      try {
+        setLoading(true);
+        setError("");
 
-  const dish = dayMenu?.dishes.find(
-    (dish) => dish.id === Number(id)
-  );
+        const response = await api.get(`/api/menu/${id}`);
+        setDish(response.data);
+      } catch (err) {
+        console.error("Dish API error:", err);
+        setError(t.notFound);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  if (!dish) {
+    fetchDish();
+  }, [id, language]);
+
+  if (loading) {
+    return (
+      <main className="luxury-dish-details">
+        <div className="dish-not-found">
+          <span>❧</span>
+          <h1>{t.loading}</h1>
+        </div>
+      </main>
+    );
+  }
+
+  if (error || !dish) {
     return (
       <main className="luxury-dish-details">
         <div className="dish-not-found">
@@ -68,22 +97,21 @@ function DishDetails() {
   }
 
   const dishName =
-    language === "fi" ? dish.nameFi : dish.name;
+    language === "fi" && dish.nameFi
+      ? dish.nameFi
+      : dish.name;
 
   const dishDescription =
-    language === "fi"
+    language === "fi" && dish.descriptionFi
       ? dish.descriptionFi
       : dish.description;
 
-  const dishIngredients =
-    language === "fi"
-      ? dish.ingredientsFi
-      : dish.ingredients;
+  const dietary = [];
 
-  const dishAllergens =
-    language === "fi"
-      ? dish.allergensFi
-      : dish.allergens;
+  if (dish.glutenFree === 1) dietary.push("GF");
+  if (dish.lactoseFree === 1) dietary.push("LF");
+  if (dish.vegetarian === 1) dietary.push("VEG");
+  if (dish.vegan === 1) dietary.push("VEGAN");
 
   return (
     <main className="luxury-dish-details">
@@ -99,14 +127,14 @@ function DishDetails() {
           </p>
 
           <p className="dish-detail-day">
-            {t.days[dayMenu.day]}
+            {t.days[dish.dayOfWeek] || dish.dayOfWeek}
           </p>
 
           <div className="dish-detail-title-row">
             <h1>{dishName}</h1>
 
             <span className="detail-price">
-              €{dish.price.toFixed(2)}
+              €{Number(dish.price).toFixed(2)}
             </span>
           </div>
 
@@ -128,9 +156,11 @@ function DishDetails() {
             <h2>{t.ingredients}</h2>
 
             <ul>
-              {dishIngredients.map((ingredient) => (
-                <li key={ingredient}>
-                  {ingredient}
+              {dish.ingredients?.map((ingredient) => (
+                <li key={ingredient.id}>
+                  {language === "fi" && ingredient.nameFi
+                    ? ingredient.nameFi
+                    : ingredient.name}
                 </li>
               ))}
             </ul>
@@ -141,7 +171,7 @@ function DishDetails() {
             <h2>{t.dietary}</h2>
 
             <div className="detail-dietary-tags">
-              {dish.dietary.map((item) => (
+              {dietary.map((item) => (
                 <span key={item}>
                   {item}
                 </span>
@@ -154,8 +184,14 @@ function DishDetails() {
             <h2>{t.allergens}</h2>
 
             <p className="detail-allergen-text">
-              {dishAllergens.length > 0
-                ? dishAllergens.join(", ")
+              {dish.allergens?.length > 0
+                ? dish.allergens
+                    .map((allergen) =>
+                      language === "fi" && allergen.nameFi
+                        ? allergen.nameFi
+                        : allergen.name
+                    )
+                    .join(", ")
                 : t.noAllergens}
             </p>
           </section>

@@ -1,9 +1,14 @@
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import menuData from "../data/menu.json";
 import { useLanguage } from "../LanguageContext.jsx";
+import api from "../services/api.js";
 
 function Menu() {
   const { language } = useLanguage();
+
+  const [menuData, setMenuData] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
   const text = {
     en: {
@@ -12,9 +17,9 @@ function Menu() {
       intro:
         "Finnish ingredients meet Asian spices. Our lunch menu is served Monday to Friday.",
       today: "Today",
-      allergens: "Allergens",
-      none: "None",
       details: "VIEW DISH DETAILS",
+      loading: "Loading menu...",
+      error: "Could not load the menu.",
       days: {
         Monday: "Monday",
         Tuesday: "Tuesday",
@@ -30,9 +35,9 @@ function Menu() {
       intro:
         "Suomalaiset raaka-aineet kohtaavat intialaiset mausteet. Lounasta tarjoillaan maanantaista perjantaihin.",
       today: "Tänään",
-      allergens: "Allergeenit",
-      none: "Ei allergeeneja",
       details: "NÄYTÄ ANNOKSEN TIEDOT",
+      loading: "Ladataan ruokalistaa...",
+      error: "Ruokalistaa ei voitu ladata.",
       days: {
         Monday: "Maanantai",
         Tuesday: "Tiistai",
@@ -45,13 +50,62 @@ function Menu() {
 
   const t = text[language];
 
+  useEffect(() => {
+    const fetchMenu = async () => {
+      try {
+        setLoading(true);
+        setError("");
+
+        const response = await api.get("/api/menu");
+
+        setMenuData(response.data);
+      } catch (err) {
+        console.error("Menu API error:", err);
+        setError(t.error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchMenu();
+  }, [language]);
+
   const today = new Date().toLocaleDateString("en-US", {
     weekday: "long",
   });
 
+  const days = [
+    "Monday",
+    "Tuesday",
+    "Wednesday",
+    "Thursday",
+    "Friday",
+  ];
+
+  if (loading) {
+    return (
+      <main className="menu-page luxury-menu-page">
+        <section className="luxury-menu-header">
+          <p className="luxury-menu-eyebrow">{t.weeklyLunch}</p>
+          <h1>{t.loading}</h1>
+        </section>
+      </main>
+    );
+  }
+
+  if (error) {
+    return (
+      <main className="menu-page luxury-menu-page">
+        <section className="luxury-menu-header">
+          <p className="luxury-menu-eyebrow">{t.weeklyLunch}</p>
+          <h1>{error}</h1>
+        </section>
+      </main>
+    );
+  }
+
   return (
     <main className="menu-page luxury-menu-page">
-
       <section className="luxury-menu-header">
         <p className="luxury-menu-eyebrow">{t.weeklyLunch}</p>
 
@@ -67,15 +121,19 @@ function Menu() {
       </section>
 
       <section className="weekly-menu luxury-weekly-menu">
-        {menuData.map((dayMenu) => {
-          const isToday = dayMenu.day === today;
+        {days.map((day) => {
+          const dishes = menuData.filter(
+            (dish) => dish.dayOfWeek === day
+          );
+
+          const isToday = day === today;
 
           return (
             <article
               className={`menu-card luxury-day-card ${
                 isToday ? "today-card" : ""
               }`}
-              key={dayMenu.day}
+              key={day}
             >
               <div className="day-heading luxury-day-heading">
                 <div>
@@ -83,7 +141,7 @@ function Menu() {
                     {t.weeklyLunch}
                   </span>
 
-                  <h2>{t.days[dayMenu.day]}</h2>
+                  <h2>{t.days[day]}</h2>
                 </div>
 
                 {isToday && (
@@ -94,8 +152,11 @@ function Menu() {
               </div>
 
               <div className="day-dishes">
-                {dayMenu.dishes.map((dish, index) => (
-                  <div className="dish-in-day luxury-dish" key={dish.id}>
+                {dishes.map((dish, index) => (
+                  <div
+                    className="dish-in-day luxury-dish"
+                    key={dish.id}
+                  >
                     <div className="dish-title-row">
                       <h3>
                         {language === "fi"
@@ -104,7 +165,7 @@ function Menu() {
                       </h3>
 
                       <strong className="dish-price">
-                        €{dish.price.toFixed(2)}
+                        €{Number(dish.price).toFixed(2)}
                       </strong>
                     </div>
 
@@ -116,22 +177,23 @@ function Menu() {
 
                     <div className="menu-meta">
                       <div className="dietary-tags">
-                        {dish.dietary.map((item) => (
-                          <span key={item}>{item}</span>
-                        ))}
+                        {dish.glutenFree === 1 && (
+                          <span>GF</span>
+                        )}
+
+                        {dish.lactoseFree === 1 && (
+                          <span>LF</span>
+                        )}
+
+                        {dish.vegetarian === 1 && (
+                          <span>VEG</span>
+                        )}
+
+                        {dish.vegan === 1 && (
+                          <span>VEGAN</span>
+                        )}
                       </div>
                     </div>
-
-                    <p className="allergens">
-                      <strong>{t.allergens}:</strong>{" "}
-                      {language === "fi"
-                        ? dish.allergensFi.length
-                          ? dish.allergensFi.join(", ")
-                          : t.none
-                        : dish.allergens.length
-                        ? dish.allergens.join(", ")
-                        : t.none}
-                    </p>
 
                     <Link
                       to={`/menu/${dish.id}`}
@@ -141,9 +203,7 @@ function Menu() {
                       <span>→</span>
                     </Link>
 
-                    {index < dayMenu.dishes.length - 1 && (
-                      <hr />
-                    )}
+                    {index < dishes.length - 1 && <hr />}
                   </div>
                 ))}
               </div>
@@ -151,7 +211,6 @@ function Menu() {
           );
         })}
       </section>
-
     </main>
   );
 }

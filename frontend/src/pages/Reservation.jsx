@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { CalendarDays, Clock, Users } from "lucide-react";
 import { useLanguage } from "../LanguageContext.jsx";
+import api from "../services/api.js";
 
 function Reservation() {
   const { language } = useLanguage();
@@ -15,6 +16,8 @@ function Reservation() {
   });
 
   const [submitted, setSubmitted] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
   const text = {
     en: {
@@ -35,9 +38,13 @@ function Reservation() {
       requestsPlaceholder:
         "Please tell us about allergies, dietary requirements or other requests.",
       button: "CHECK AVAILABILITY",
+      checking: "CHECKING AVAILABILITY...",
       thankYou: "Thank you",
-      message:
-        "Reservation details received. Final availability will be confirmed by the restaurant.",
+      message: "Your reservation has been created successfully.",
+      noTable:
+        "No table is available for the selected date, time and party size.",
+      error:
+        "Something went wrong while creating the reservation. Please try again.",
       lunch: "Opening Hours",
       lunchHours: "Monday–Friday · 11:00–14:00",
       experience: "Fine Dining",
@@ -64,9 +71,13 @@ function Reservation() {
       requestsPlaceholder:
         "Kerro meille allergioista, ruokavaliovaatimuksista tai muista toiveista.",
       button: "TARKISTA SAATAVUUS",
+      checking: "TARKISTETAAN SAATAVUUTTA...",
       thankYou: "Kiitos",
-      message:
-        "Varaustiedot on vastaanotettu. Ravintola vahvistaa lopullisen saatavuuden.",
+      message: "Pöytävarauksesi on luotu onnistuneesti.",
+      noTable:
+        "Valitulle päivälle, ajalle ja seurueelle ei ole vapaata pöytää.",
+      error:
+        "Varauksen luomisessa tapahtui virhe. Yritä uudelleen.",
       lunch: "Lounas",
       lunchHours: "Maanantai–perjantai · 11:00–14:00",
       experience: "Fine Dining",
@@ -85,11 +96,59 @@ function Reservation() {
       ...formData,
       [name]: value,
     });
+
+    setSubmitted(false);
+    setError("");
   }
 
-  function handleSubmit(event) {
+  async function handleSubmit(event) {
     event.preventDefault();
-    setSubmitted(true);
+
+    setLoading(true);
+    setSubmitted(false);
+    setError("");
+
+    try {
+      // 1. Check available tables
+      const availabilityResponse = await api.get(
+        "/api/tables/available",
+        {
+          params: {
+            date: formData.date,
+            time: formData.time,
+            guests: Number(formData.guests),
+          },
+        }
+      );
+
+      const availableTables = availabilityResponse.data;
+
+      // 2. Stop if no table is available
+      if (!availableTables || availableTables.length === 0) {
+        setError(t.noTable);
+        return;
+      }
+
+      // 3. Use the first available suitable table
+      const selectedTable = availableTables[0];
+
+      // 4. Create reservation
+      await api.post("/api/reservations", {
+        customerId: 1,
+        tableId: selectedTable.id,
+        date: formData.date,
+        time: formData.time,
+        numberOfGuests: Number(formData.guests),
+        specialRequests: formData.specialRequests,
+      });
+
+      setSubmitted(true);
+    } catch (err) {
+      console.error("Reservation API error:", err);
+      setError(t.error);
+    } finally {
+      setLoading(false);
+    }
   }
 
   return (
@@ -114,7 +173,9 @@ function Reservation() {
 
       <section className="reservation-main">
         <div className="reservation-info-panel">
-          <p className="reservation-info-label">NORDIC SPICES</p>
+          <p className="reservation-info-label">
+            NORDIC SPICES
+          </p>
 
           <h2>
             {language === "fi"
@@ -192,6 +253,7 @@ function Reservation() {
                 id="date"
                 type="date"
                 name="date"
+                min={new Date().toISOString().split("T")[0]}
                 value={formData.date}
                 onChange={handleChange}
                 required
@@ -256,10 +318,17 @@ function Reservation() {
           <button
             type="submit"
             className="reservation-btn luxury-reservation-btn"
+            disabled={loading}
           >
-            {t.button}
+            {loading ? t.checking : t.button}
             <span>→</span>
           </button>
+
+          {error && (
+            <div className="reservation-message luxury-reservation-message">
+              <p>{error}</p>
+            </div>
+          )}
 
           {submitted && (
             <div className="reservation-message luxury-reservation-message">

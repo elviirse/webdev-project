@@ -157,6 +157,13 @@ function Restaurant() {
           {t.transportInfo}
         </p>
 
+
+        <iframe
+          src="https://www.google.com/maps?q=Leiritie+1,+01600+Vantaa&output=embed"
+          title="Restaurant location"
+          loading="lazy"
+        ></iframe>
+
       </section>
 
     </main>
