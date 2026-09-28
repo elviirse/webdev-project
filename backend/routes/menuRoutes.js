@@ -75,12 +75,56 @@ router.post("/", authenticateToken, requireAdmin, createMenuItem);
  *
  * @apiError (500) ServerError Failed to fetch today's menu.
  */
+router.get("/today", getTodayMenu);
 
+/**
+ * @api {patch} /api/menu/:id Update a menu item
+ * @apiName UpdateMenuItem
+ * @apiGroup Menu
+ *
+ * @apiHeader {String} Authorization Bearer JWT token (admin only).
+ *
+ * @apiParam {Number} id Menu item ID.
+ *
+ * @apiBody {String} [name] Menu item name.
+ * @apiBody {String} [nameFi] Finnish menu item name.
+ * @apiBody {String} [description] Menu item description.
+ * @apiBody {String} [descriptionFi] Finnish description.
+ * @apiBody {Number} [price] Menu item price.
+ * @apiBody {String} [dayOfWeek] Monday-Friday.
+ * @apiBody {Boolean} [glutenFree] Gluten-free status.
+ * @apiBody {Boolean} [lactoseFree] Lactose-free status.
+ * @apiBody {Boolean} [vegetarian] Vegetarian status.
+ * @apiBody {Boolean} [vegan] Vegan status.
+ *
+ * @apiSuccess {String} message Menu item updated successfully.
+ *
+ * @apiError (400) BadRequest Invalid menu item ID or data.
+ * @apiError (401) Unauthorized Authentication token required or invalid.
+ * @apiError (403) Forbidden Admin access required.
+ * @apiError (404) NotFound Menu item not found.
+ * @apiError (500) ServerError Failed to update menu item.
+ */
 router.patch("/:id", authenticateToken, requireAdmin, updateMenuItem);
 
+/**
+ * @api {delete} /api/menu/:id Delete a menu item
+ * @apiName DeleteMenuItem
+ * @apiGroup Menu
+ *
+ * @apiHeader {String} Authorization Bearer JWT token (admin only).
+ *
+ * @apiParam {Number} id Menu item ID.
+ *
+ * @apiSuccess {String} message Menu item deleted successfully.
+ *
+ * @apiError (400) BadRequest Invalid menu item ID.
+ * @apiError (401) Unauthorized Authentication token required or invalid.
+ * @apiError (403) Forbidden Admin access required.
+ * @apiError (404) NotFound Menu item not found.
+ * @apiError (500) ServerError Failed to delete menu item.
+ */
 router.delete("/:id", authenticateToken, requireAdmin, deleteMenuItem);
-
-router.get("/today", getTodayMenu);
 
 /**
  * @api {get} /api/menu/:id Get menu item by ID
