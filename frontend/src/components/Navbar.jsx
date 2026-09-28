@@ -5,6 +5,17 @@ import logo from "../assets/logo.png";
 function Navbar() {
   const { language, setLanguage, t } = useLanguage();
 
+  const token = localStorage.getItem("token");
+  const storedUser = localStorage.getItem("user");
+
+  let user = null;
+
+  try {
+    user = storedUser ? JSON.parse(storedUser) : null;
+  } catch {
+    user = null;
+  }
+
   return (
     <nav>
       <Link to="/" className="logo">
@@ -17,9 +28,24 @@ function Navbar() {
 
       <div className="nav-links">
         <NavLink to="/" end>{t.home}</NavLink>
-<NavLink to="/menu">{t.menu}</NavLink>
-<NavLink to="/reservation">{t.reservation}</NavLink>
-<NavLink to="/restaurant">{t.restaurant}</NavLink>
+        <NavLink to="/menu">{t.menu}</NavLink>
+        <NavLink to="/reservation">{t.reservation}</NavLink>
+        <NavLink to="/restaurant">{t.restaurant}</NavLink>
+
+        {!token && (
+          <>
+            <NavLink to="/login">Login</NavLink>
+            <NavLink to="/register">Register</NavLink>
+          </>
+        )}
+
+        {token && user?.role === "customer" && (
+          <NavLink to="/account">Account</NavLink>
+        )}
+
+        {token && user?.role === "admin" && (
+          <NavLink to="/admin">Admin</NavLink>
+        )}
 
         <div className="language-switcher">
           <button
