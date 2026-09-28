@@ -1,4 +1,5 @@
 import express from "express";
+import authRoutes from "./routes/authRoutes.js";
 import cors from "cors";
 
 import menuRoutes from "./routes/menuRoutes.js";
@@ -27,6 +28,7 @@ app.use("/api/orders", orderRoutes);
 app.use("/api/reservations", reservationRoutes);
 app.use("/api/opening-hours", openingHoursRoutes);
 app.use("/api/tables", tableRoutes);
+app.use("/api/auth", authRoutes);
 
 // Start server
 app.listen(port, hostname, () => {

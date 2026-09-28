@@ -1,6 +1,11 @@
 import express from "express";
 
 import {
+  authenticateToken,
+  requireAdmin,
+} from "../middleware/authMiddleware.js";
+
+import {
   createOrder,
   getAllOrders,
   getOrderById,
@@ -37,6 +42,8 @@ router.post("/", createOrder);
  * @apiName GetAllOrders
  * @apiGroup Orders
  *
+ * @apiHeader {String} Authorization Bearer JWT token (admin only).
+ *
  * @apiSuccess {Object[]} orders List of all orders.
  * @apiSuccess {Number} orders.id Order ID.
  * @apiSuccess {Number} orders.customerId Customer ID.
@@ -45,9 +52,11 @@ router.post("/", createOrder);
  * @apiSuccess {Number} orders.totalPrice Total order price.
  * @apiSuccess {String} orders.pickupTime Pickup date and time.
  *
+ * @apiError (401) Unauthorized Authentication token required or invalid.
+ * @apiError (403) Forbidden Admin access required.
  * @apiError (500) ServerError Failed to fetch orders.
  */
-router.get("/", getAllOrders);
+router.get("/", authenticateToken, requireAdmin, getAllOrders);
 
 /**
  * @api {get} /api/orders/:id Get order by ID
@@ -75,6 +84,8 @@ router.get("/:id", getOrderById);
  * @apiName UpdateOrderStatus
  * @apiGroup Orders
  *
+ * @apiHeader {String} Authorization Bearer JWT token (admin only).
+ *
  * @apiParam {Number} id Order ID.
  * @apiBody {String="pending","preparing","ready","completed","cancelled"} status New order status.
  *
@@ -83,9 +94,11 @@ router.get("/:id", getOrderById);
  * @apiSuccess {String} message Success message.
  *
  * @apiError (400) BadRequest Invalid order ID or status.
+ * @apiError (401) Unauthorized Authentication token required or invalid.
+ * @apiError (403) Forbidden Admin access required.
  * @apiError (404) NotFound Order not found.
  * @apiError (500) ServerError Failed to update order status.
  */
-router.patch("/:id/status", updateOrderStatus);
+router.patch("/:id/status", authenticateToken, requireAdmin, updateOrderStatus);
 
 export default router;

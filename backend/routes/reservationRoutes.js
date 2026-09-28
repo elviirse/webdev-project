@@ -1,6 +1,11 @@
 import express from "express";
 
 import {
+  authenticateToken,
+  requireAdmin,
+} from "../middleware/authMiddleware.js";
+
+import {
   createReservation,
   getAllReservations,
   getReservationById,
@@ -42,6 +47,8 @@ router.post("/", createReservation);
  * @apiName GetAllReservations
  * @apiGroup Reservations
  *
+ * @apiHeader {String} Authorization Bearer JWT token (admin only).
+ *
  * @apiSuccess {Object[]} reservations List of reservations.
  * @apiSuccess {Number} reservations.id Reservation ID.
  * @apiSuccess {Number} reservations.customerId Customer ID.
@@ -52,9 +59,16 @@ router.post("/", createReservation);
  * @apiSuccess {String} reservations.specialRequests Special requests.
  * @apiSuccess {String} reservations.status Reservation status.
  *
+ * @apiError (401) Unauthorized Authentication token required or invalid.
+ * @apiError (403) Forbidden Admin access required.
  * @apiError (500) ServerError Failed to fetch reservations.
  */
-router.get("/", getAllReservations);
+router.get(
+  "/",
+  authenticateToken,
+  requireAdmin,
+  getAllReservations
+);
 
 /**
  * @api {get} /api/reservations/:id Get reservation by ID
@@ -83,6 +97,8 @@ router.get("/:id", getReservationById);
  * @apiName UpdateReservationStatus
  * @apiGroup Reservations
  *
+ * @apiHeader {String} Authorization Bearer JWT token (admin only).
+ *
  * @apiParam {Number} id Reservation ID.
  * @apiBody {String="pending","confirmed","cancelled","completed"} status New reservation status.
  *
@@ -91,9 +107,16 @@ router.get("/:id", getReservationById);
  * @apiSuccess {String} message Success message.
  *
  * @apiError (400) BadRequest Invalid reservation ID or status.
+ * @apiError (401) Unauthorized Authentication token required or invalid.
+ * @apiError (403) Forbidden Admin access required.
  * @apiError (404) NotFound Reservation not found.
  * @apiError (500) ServerError Failed to update reservation status.
  */
-router.patch("/:id/status", updateReservationStatus);
+router.patch(
+  "/:id/status",
+  authenticateToken,
+  requireAdmin,
+  updateReservationStatus
+);
 
 export default router;
