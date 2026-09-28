@@ -43,7 +43,6 @@ export const createReservation = async (req, res) => {
 
     // Check that the date itself is valid
     const [year, month, day] = date.split("-").map(Number);
-
     const validDate = new Date(year, month - 1, day);
 
     if (
@@ -56,9 +55,9 @@ export const createReservation = async (req, res) => {
       });
     }
 
-    // Prevent reservations in the past
     const normalizedTime = time.length === 5 ? `${time}:00` : time;
 
+    // JavaScript datetime for validation
     const reservationDateTime = new Date(`${date}T${normalizedTime}`);
 
     if (
@@ -69,6 +68,9 @@ export const createReservation = async (req, res) => {
         message: "Reservation date and time must be in the future",
       });
     }
+
+    // MySQL DATETIME value
+    const reservationDateTimeSql = `${date} ${normalizedTime}`;
 
     // Check customer
     const [customers] = await pool.query(
@@ -98,29 +100,26 @@ export const createReservation = async (req, res) => {
       });
     }
 
-    // Check table status
     if (tables[0].status !== "available") {
       return res.status(400).json({
         message: "Table is not available",
       });
     }
 
-    // Check table capacity
     if (guests > Number(tables[0].capacity)) {
       return res.status(400).json({
         message: "Number of guests exceeds table capacity",
       });
     }
 
-    // Check double booking
+    // Check double booking using reservation_datetime
     const [existingReservations] = await pool.query(
       `SELECT reservation_id
        FROM reservation
        WHERE table_id = ?
-         AND reservation_date = ?
-         AND reservation_time = ?
+         AND reservation_datetime = ?
          AND status IN ('pending', 'confirmed')`,
-      [Number(tableId), date, normalizedTime],
+      [Number(tableId), reservationDateTimeSql],
     );
 
     if (existingReservations.length > 0) {
@@ -129,24 +128,22 @@ export const createReservation = async (req, res) => {
       });
     }
 
-    // Create reservation
+    // Create reservation using reservation_datetime
     const [result] = await pool.query(
       `INSERT INTO reservation
        (
          customer_id,
          table_id,
-         reservation_date,
-         reservation_time,
+         reservation_datetime,
          guests,
          special_request,
          status
        )
-       VALUES (?, ?, ?, ?, ?, ?, ?)`,
+       VALUES (?, ?, ?, ?, ?, ?)`,
       [
         Number(customerId),
         Number(tableId),
-        date,
-        normalizedTime,
+        reservationDateTimeSql,
         guests,
         specialRequests || null,
         "pending",
@@ -159,6 +156,7 @@ export const createReservation = async (req, res) => {
       tableId: Number(tableId),
       date,
       time: normalizedTime,
+      reservationDateTime: reservationDateTimeSql,
       numberOfGuests: guests,
       specialRequests: specialRequests || null,
       status: "pending",
@@ -180,8 +178,12 @@ export const getAllReservations = async (req, res) => {
         reservation_id AS id,
         customer_id AS customerId,
         table_id AS tableId,
-        DATE_FORMAT(reservation_date, '%Y-%m-%d') AS date,
-        reservation_time AS time,
+        DATE_FORMAT(reservation_datetime, '%Y-%m-%d') AS date,
+        TIME_FORMAT(reservation_datetime, '%H:%i:%s') AS time,
+        DATE_FORMAT(
+          reservation_datetime,
+          '%Y-%m-%d %H:%i:%s'
+        ) AS reservationDateTime,
         guests AS numberOfGuests,
         special_request AS specialRequests,
         status
@@ -215,8 +217,12 @@ export const getReservationById = async (req, res) => {
         reservation_id AS id,
         customer_id AS customerId,
         table_id AS tableId,
-        DATE_FORMAT(reservation_date, '%Y-%m-%d') AS date,
-        reservation_time AS time,
+        DATE_FORMAT(reservation_datetime, '%Y-%m-%d') AS date,
+        TIME_FORMAT(reservation_datetime, '%H:%i:%s') AS time,
+        DATE_FORMAT(
+          reservation_datetime,
+          '%Y-%m-%d %H:%i:%s'
+        ) AS reservationDateTime,
         guests AS numberOfGuests,
         special_request AS specialRequests,
         status

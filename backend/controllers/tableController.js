@@ -16,6 +16,7 @@ export const getAllTables = async (req, res) => {
     res.json(rows);
   } catch (error) {
     console.error("Error fetching tables:", error);
+
     res.status(500).json({
       message: "Failed to fetch tables",
     });
@@ -39,6 +40,35 @@ export const getAvailableTables = async (req, res) => {
       });
     }
 
+    // Validate date and time format
+    const datePattern = /^\d{4}-\d{2}-\d{2}$/;
+    const timePattern = /^([01]\d|2[0-3]):[0-5]\d(?::[0-5]\d)?$/;
+
+    if (!datePattern.test(date) || !timePattern.test(time)) {
+      return res.status(400).json({
+        message: "Invalid date or time format",
+      });
+    }
+
+    // Validate actual calendar date
+    const [year, month, day] = date.split("-").map(Number);
+    const validDate = new Date(year, month - 1, day);
+
+    if (
+      validDate.getFullYear() !== year ||
+      validDate.getMonth() !== month - 1 ||
+      validDate.getDate() !== day
+    ) {
+      return res.status(400).json({
+        message: "Invalid reservation date",
+      });
+    }
+
+    const normalizedTime = time.length === 5 ? `${time}:00` : time;
+
+    // MySQL DATETIME format
+    const reservationDateTime = `${date} ${normalizedTime}`;
+
     const [rows] = await pool.query(
       `
       SELECT
@@ -53,18 +83,18 @@ export const getAvailableTables = async (req, res) => {
           SELECT 1
           FROM reservation r
           WHERE r.table_id = rt.table_id
-            AND r.reservation_date = ?
-            AND r.reservation_time = ?
+            AND r.reservation_datetime = ?
             AND r.status IN ('pending', 'confirmed')
         )
       ORDER BY rt.capacity, rt.table_number
       `,
-      [numberOfGuests, date, time],
+      [numberOfGuests, reservationDateTime],
     );
 
     res.json(rows);
   } catch (error) {
     console.error("Error fetching available tables:", error);
+
     res.status(500).json({
       message: "Failed to fetch available tables",
     });
