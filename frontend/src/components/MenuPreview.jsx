@@ -1,0 +1,121 @@
+import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
+import { useLanguage } from "../LanguageContext.jsx";
+import api from "../services/api.js";
+
+function MenuPreview() {
+  const { language } = useLanguage();
+
+  const [previewDishes, setPreviewDishes] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  const text = {
+    en: {
+      label: "A TASTE OF NORDIC SPICES",
+      title: "Discover Our Lunch Menu",
+      description:
+        "Seasonal Nordic ingredients meet the warmth and character of Asian spices.",
+      button: "VIEW FULL MENU",
+      details: "VIEW DETAILS",
+      loading: "Loading menu...",
+    },
+
+    fi: {
+      label: "MAISTA NORDIC SPICES",
+      title: "Tutustu Lounasmenuumme",
+      description:
+        "Pohjoismaiset sesonkiraaka-aineet kohtaavat intialaisten mausteiden lämmön.",
+      button: "NÄYTÄ KOKO MENU",
+      details: "NÄYTÄ TIEDOT",
+      loading: "Ladataan ruokalistaa...",
+    },
+  };
+
+  const t = text[language];
+
+  useEffect(() => {
+    const fetchPreview = async () => {
+      try {
+        setLoading(true);
+
+        const response = await api.get("/api/menu");
+
+        setPreviewDishes(response.data.slice(0, 3));
+      } catch (error) {
+        console.error("Menu preview API error:", error);
+        setPreviewDishes([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchPreview();
+  }, []);
+
+  return (
+    <section className="menu-preview-section">
+      <div className="menu-preview-heading">
+        <p className="menu-preview-label">{t.label}</p>
+
+        <h2>{t.title}</h2>
+
+        <div className="menu-preview-ornament">
+          <span></span>
+          <span>❧</span>
+          <span></span>
+        </div>
+
+        <p className="menu-preview-description">
+          {t.description}
+        </p>
+      </div>
+
+      {loading ? (
+        <p>{t.loading}</p>
+      ) : (
+        <div className="menu-preview-grid">
+          {previewDishes.map((dish) => (
+            <article className="menu-preview-card" key={dish.id}>
+              <div className="menu-preview-number">
+                {String(dish.id).padStart(2, "0")}
+              </div>
+
+              <h3>
+                {language === "fi" && dish.nameFi
+                  ? dish.nameFi
+                  : dish.name}
+              </h3>
+
+              <p>
+                {language === "fi" && dish.descriptionFi
+                  ? dish.descriptionFi
+                  : dish.description}
+              </p>
+
+              <div className="menu-preview-card-bottom">
+                <span className="menu-preview-price">
+                  €{Number(dish.price).toFixed(2)}
+                </span>
+
+                <Link
+                  to={`/menu/${dish.id}`}
+                  className="menu-preview-details"
+                >
+                  {t.details} →
+                </Link>
+              </div>
+            </article>
+          ))}
+        </div>
+      )}
+
+      <div className="menu-preview-button-wrap">
+        <Link to="/menu" className="menu-preview-button">
+          {t.button} <span>→</span>
+        </Link>
+      </div>
+    </section>
+  );
+}
+
+export default MenuPreview;
