@@ -12,10 +12,10 @@ function Menu() {
 
   const text = {
     en: {
-      weeklyLunch: "WEEKLY LUNCH",
-      title: "Lunch Menu",
+      menuLabel: "OUR MENU",
+      title: "Menu",
       intro:
-        "Finnish ingredients meet Asian spices. Our lunch menu is served Monday to Friday.",
+        "Finnish ingredients meet Indian spices. Discover our selection of carefully crafted dishes.",
       today: "Today",
       details: "VIEW DISH DETAILS",
       loading: "Loading menu...",
@@ -30,10 +30,10 @@ function Menu() {
     },
 
     fi: {
-      weeklyLunch: "VIIKON LOUNAS",
-      title: "Lounasmenu",
+      menuLabel: "MENU",
+      title: "Menu",
       intro:
-        "Suomalaiset raaka-aineet kohtaavat intialaiset mausteet. Lounasta tarjoillaan maanantaista perjantaihin.",
+        "Suomalaiset raaka-aineet kohtaavat intialaiset mausteet. Tutustu huolella valmistettuihin annoksiimme.",
       today: "Tänään",
       details: "NÄYTÄ ANNOKSEN TIEDOT",
       loading: "Ladataan ruokalistaa...",
@@ -86,7 +86,7 @@ function Menu() {
     return (
       <main className="menu-page luxury-menu-page">
         <section className="luxury-menu-header">
-          <p className="luxury-menu-eyebrow">{t.weeklyLunch}</p>
+          <p className="luxury-menu-eyebrow">{t.menuLabel}</p>
           <h1>{t.loading}</h1>
         </section>
       </main>
@@ -97,7 +97,7 @@ function Menu() {
     return (
       <main className="menu-page luxury-menu-page">
         <section className="luxury-menu-header">
-          <p className="luxury-menu-eyebrow">{t.weeklyLunch}</p>
+          <p className="luxury-menu-eyebrow">{t.menuLabel}</p>
           <h1>{error}</h1>
         </section>
       </main>
@@ -107,7 +107,7 @@ function Menu() {
   return (
     <main className="menu-page luxury-menu-page">
       <section className="luxury-menu-header">
-        <p className="luxury-menu-eyebrow">{t.weeklyLunch}</p>
+        <p className="luxury-menu-eyebrow">{t.menuLabel}</p>
 
         <h1>{t.title}</h1>
 
@@ -138,7 +138,7 @@ function Menu() {
               <div className="day-heading luxury-day-heading">
                 <div>
                   <span className="day-small-label">
-                    {t.weeklyLunch}
+                    {t.menuLabel}
                   </span>
 
                   <h2>{t.days[day]}</h2>
@@ -177,21 +177,10 @@ function Menu() {
 
                     <div className="menu-meta">
                       <div className="dietary-tags">
-                        {dish.glutenFree === 1 && (
-                          <span>GF</span>
-                        )}
-
-                        {dish.lactoseFree === 1 && (
-                          <span>LF</span>
-                        )}
-
-                        {dish.vegetarian === 1 && (
-                          <span>VEG</span>
-                        )}
-
-                        {dish.vegan === 1 && (
-                          <span>VEGAN</span>
-                        )}
+                        {dish.glutenFree === 1 && <span>GF</span>}
+                        {dish.lactoseFree === 1 && <span>LF</span>}
+                        {dish.vegetarian === 1 && <span>VEG</span>}
+                        {dish.vegan === 1 && <span>VEGAN</span>}
                       </div>
                     </div>
 

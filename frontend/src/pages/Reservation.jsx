@@ -24,7 +24,7 @@ function Reservation() {
       label: "RESERVATIONS",
       title: "Reserve Your Table",
       intro:
-        "Join us for a dining experience where Nordic ingredients meet the warmth of Indian flavours.",
+        "Join us for a dining experience where Nordic ingredients meet the warmth of Asian flavours.",
       fullName: "Full Name",
       namePlaceholder: "Your name",
       email: "Email",

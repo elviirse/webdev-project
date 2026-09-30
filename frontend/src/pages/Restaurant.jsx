@@ -15,7 +15,7 @@ function Restaurant() {
       visit: "VISIT US",
       title: "Nordic Spices",
       intro:
-        "Finnish ingredients meet the warmth and flavours of Indian cuisine.",
+        "Finnish ingredients meet the warmth and flavours of Asian cuisine.",
       hours: "Opening Hours",
       weekdays: "Monday – Friday",
       weekend: "Saturday – Sunday: Closed",
