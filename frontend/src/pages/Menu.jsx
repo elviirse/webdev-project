@@ -56,7 +56,7 @@ function Menu() {
         setLoading(true);
         setError("");
 
-        const response = await api.get("/api/menu");
+        const response = await api.get("/api/menu/lunch");
 
         setMenuData(response.data);
       } catch (err) {
@@ -74,13 +74,7 @@ function Menu() {
     weekday: "long",
   });
 
-  const days = [
-    "Monday",
-    "Tuesday",
-    "Wednesday",
-    "Thursday",
-    "Friday",
-  ];
+  const days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"];
 
   if (loading) {
     return (
@@ -122,9 +116,7 @@ function Menu() {
 
       <section className="weekly-menu luxury-weekly-menu">
         {days.map((day) => {
-          const dishes = menuData.filter(
-            (dish) => dish.dayOfWeek === day
-          );
+          const dishes = menuData.filter((dish) => dish.dayOfWeek === day);
 
           const isToday = day === today;
 
@@ -137,32 +129,19 @@ function Menu() {
             >
               <div className="day-heading luxury-day-heading">
                 <div>
-                  <span className="day-small-label">
-                    {t.weeklyLunch}
-                  </span>
+                  <span className="day-small-label">{t.weeklyLunch}</span>
 
                   <h2>{t.days[day]}</h2>
                 </div>
 
-                {isToday && (
-                  <span className="today-badge">
-                    {t.today}
-                  </span>
-                )}
+                {isToday && <span className="today-badge">{t.today}</span>}
               </div>
 
               <div className="day-dishes">
                 {dishes.map((dish, index) => (
-                  <div
-                    className="dish-in-day luxury-dish"
-                    key={dish.id}
-                  >
+                  <div className="dish-in-day luxury-dish" key={dish.id}>
                     <div className="dish-title-row">
-                      <h3>
-                        {language === "fi"
-                          ? dish.nameFi
-                          : dish.name}
-                      </h3>
+                      <h3>{language === "fi" ? dish.nameFi : dish.name}</h3>
 
                       <strong className="dish-price">
                         €{Number(dish.price).toFixed(2)}
@@ -177,21 +156,13 @@ function Menu() {
 
                     <div className="menu-meta">
                       <div className="dietary-tags">
-                        {dish.glutenFree === 1 && (
-                          <span>GF</span>
-                        )}
+                        {dish.glutenFree === 1 && <span>GF</span>}
 
-                        {dish.lactoseFree === 1 && (
-                          <span>LF</span>
-                        )}
+                        {dish.lactoseFree === 1 && <span>LF</span>}
 
-                        {dish.vegetarian === 1 && (
-                          <span>VEG</span>
-                        )}
+                        {dish.vegetarian === 1 && <span>VEG</span>}
 
-                        {dish.vegan === 1 && (
-                          <span>VEGAN</span>
-                        )}
+                        {dish.vegan === 1 && <span>VEGAN</span>}
                       </div>
                     </div>
 

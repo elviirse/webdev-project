@@ -38,9 +38,13 @@ function MenuPreview() {
       try {
         setLoading(true);
 
-        const response = await api.get("/api/menu");
+        const response = await api.get("/api/menu/lunch");
 
-        setPreviewDishes(response.data.slice(0, 3));
+        const activeLunchItems = response.data.filter(
+          (dish) => dish.menuType === "lunch" && Boolean(dish.isActive),
+        );
+
+        setPreviewDishes(activeLunchItems.slice(0, 3));
       } catch (error) {
         console.error("Menu preview API error:", error);
         setPreviewDishes([]);
@@ -65,9 +69,7 @@ function MenuPreview() {
           <span></span>
         </div>
 
-        <p className="menu-preview-description">
-          {t.description}
-        </p>
+        <p className="menu-preview-description">{t.description}</p>
       </div>
 
       {loading ? (
@@ -81,9 +83,7 @@ function MenuPreview() {
               </div>
 
               <h3>
-                {language === "fi" && dish.nameFi
-                  ? dish.nameFi
-                  : dish.name}
+                {language === "fi" && dish.nameFi ? dish.nameFi : dish.name}
               </h3>
 
               <p>
@@ -97,10 +97,7 @@ function MenuPreview() {
                   €{Number(dish.price).toFixed(2)}
                 </span>
 
-                <Link
-                  to={`/menu/${dish.id}`}
-                  className="menu-preview-details"
-                >
+                <Link to={`/menu/${dish.id}`} className="menu-preview-details">
                   {t.details} →
                 </Link>
               </div>

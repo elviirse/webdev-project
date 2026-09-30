@@ -3,6 +3,8 @@ import express from "express";
 import {
   getAllMenuItems,
   getTodayMenu,
+  getLunchMenu,
+  getFineDiningMenu,
   getMenuItemById,
   createMenuItem,
   updateMenuItem,
@@ -76,6 +78,26 @@ router.post("/", authenticateToken, requireAdmin, createMenuItem);
  * @apiError (500) ServerError Failed to fetch today's menu.
  */
 router.get("/today", getTodayMenu);
+
+/**
+ * @api {get} /api/menu/lunch Get lunch menu
+ * @apiName GetLunchMenu
+ * @apiGroup Menu
+ *
+ * @apiSuccess {Object[]} menuItems Lunch menu items.
+ * @apiError (500) ServerError Failed to fetch lunch menu.
+ */
+router.get("/lunch", getLunchMenu);
+
+/**
+ * @api {get} /api/menu/fine-dining Get fine dining menu
+ * @apiName GetFineDiningMenu
+ * @apiGroup Menu
+ *
+ * @apiSuccess {Object[]} menuItems Fine dining menu items.
+ * @apiError (500) ServerError Failed to fetch fine dining menu.
+ */
+router.get("/fine-dining", getFineDiningMenu);
 
 /**
  * @api {patch} /api/menu/:id Update a menu item

@@ -5,6 +5,7 @@ import { Routes, Route } from "react-router-dom";
 import Navbar from "./components/navbar.jsx";
 import Home from "./pages/Home.jsx";
 import Menu from "./pages/Menu.jsx";
+import FineDining from "./pages/FineDining.jsx";
 import DishDetails from "./pages/DishDetails.jsx";
 import Login from "./pages/Login.jsx";
 import Register from "./pages/Register.jsx";
@@ -19,6 +20,7 @@ function App() {
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/menu" element={<Menu />} />
+        <Route path="/fine-dining" element={<FineDining />} />
         <Route path="/menu/:id" element={<DishDetails />} />
         <Route path="/reservation" element={<Reservation />} />
         <Route path="/restaurant" element={<Restaurant />} />

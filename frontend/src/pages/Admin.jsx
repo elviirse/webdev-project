@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { getCurrentUser } from "../services/authService.js";
+
 import {
   getMenuItems,
   createMenuItem,
@@ -18,12 +19,29 @@ const emptyForm = {
   description: "",
   descriptionFi: "",
   price: "",
+  menuType: "lunch",
+  category: "buffet",
   dayOfWeek: "Monday",
   glutenFree: false,
   lactoseFree: false,
   vegetarian: false,
   vegan: false,
+  isActive: true,
 };
+
+const fineDiningCategories = [
+  { value: "amuse_bouche", label: "Amuse-Bouche" },
+  { value: "starter", label: "Starter" },
+  { value: "soup", label: "Soup" },
+  { value: "main", label: "Main Course" },
+  { value: "side", label: "Side" },
+  { value: "dessert", label: "Dessert" },
+  {
+    value: "drink",
+    label: "Signature Non-Alcoholic Drink",
+  },
+  { value: "tasting_menu", label: "Tasting Menu" },
+];
 
 const orderStatuses = [
   "pending",
@@ -33,12 +51,7 @@ const orderStatuses = [
   "cancelled",
 ];
 
-const reservationStatuses = [
-  "pending",
-  "confirmed",
-  "cancelled",
-  "completed",
-];
+const reservationStatuses = ["pending", "confirmed", "cancelled", "completed"];
 
 function Admin() {
   const navigate = useNavigate();
@@ -80,8 +93,7 @@ function Admin() {
         setMenuItems(menu);
       } catch (err) {
         setError(
-          err.response?.data?.message ||
-            "Could not load the admin dashboard."
+          err.response?.data?.message || "Could not load the admin dashboard.",
         );
       } finally {
         setLoading(false);
@@ -93,6 +105,17 @@ function Admin() {
 
   const handleChange = (event) => {
     const { name, value, type, checked } = event.target;
+
+    if (name === "menuType") {
+      setFormData((current) => ({
+        ...current,
+        menuType: value,
+        category: value === "lunch" ? "buffet" : "starter",
+        dayOfWeek: value === "lunch" ? current.dayOfWeek || "Monday" : "",
+      }));
+
+      return;
+    }
 
     setFormData((current) => ({
       ...current,
@@ -114,29 +137,35 @@ function Admin() {
     const menuData = {
       ...formData,
       price: Number(formData.price),
+
+      dayOfWeek: formData.menuType === "lunch" ? formData.dayOfWeek : null,
+
+      category: formData.menuType === "lunch" ? "buffet" : formData.category,
     };
 
     try {
       if (editingId) {
         await updateMenuItem(editingId, menuData);
+
         setMessage("Menu item updated successfully.");
       } else {
         await createMenuItem(menuData);
+
         setMessage("Menu item created successfully.");
       }
 
       await refreshMenu();
+
       setFormData(emptyForm);
       setEditingId(null);
     } catch (err) {
-      setError(
-        err.response?.data?.message ||
-          "Could not save menu item."
-      );
+      setError(err.response?.data?.message || "Could not save menu item.");
     }
   };
 
   const handleEditMenuItem = (item) => {
+    const itemMenuType = item.menuType || "lunch";
+
     setEditingId(item.id);
 
     setFormData({
@@ -145,11 +174,19 @@ function Admin() {
       description: item.description || "",
       descriptionFi: item.descriptionFi || "",
       price: item.price ?? "",
-      dayOfWeek: item.dayOfWeek || "Monday",
+
+      menuType: itemMenuType,
+
+      category:
+        item.category || (itemMenuType === "lunch" ? "buffet" : "starter"),
+
+      dayOfWeek: itemMenuType === "lunch" ? item.dayOfWeek || "Monday" : "",
+
       glutenFree: Boolean(item.glutenFree),
       lactoseFree: Boolean(item.lactoseFree),
       vegetarian: Boolean(item.vegetarian),
       vegan: Boolean(item.vegan),
+      isActive: Boolean(item.isActive),
     });
 
     setError("");
@@ -168,9 +205,9 @@ function Admin() {
     setMessage("");
   };
 
-  const handleDeleteMenuItem = async (id) => {
+  const handleArchiveMenuItem = async (id) => {
     const confirmed = window.confirm(
-      "Are you sure you want to delete this menu item?"
+      "Archive this menu item? It will disappear from the customer menu but remain in the database.",
     );
 
     if (!confirmed) {
@@ -178,24 +215,61 @@ function Admin() {
     }
 
     try {
+      setError("");
+      setMessage("");
+
       await deleteMenuItem(id);
 
-      setMenuItems((items) =>
-        items.filter((item) => item.id !== id)
-      );
+      await refreshMenu();
 
       if (editingId === id) {
         setEditingId(null);
         setFormData(emptyForm);
       }
 
-      setError("");
-      setMessage("Menu item deleted successfully.");
+      setMessage("Menu item archived successfully.");
     } catch (err) {
-      setError(
-        err.response?.data?.message ||
-          "Could not delete menu item."
-      );
+      setError(err.response?.data?.message || "Could not archive menu item.");
+    }
+  };
+
+  const handleRestoreMenuItem = async (item) => {
+    try {
+      setError("");
+      setMessage("");
+
+      await updateMenuItem(item.id, {
+        name: item.name,
+        nameFi: item.nameFi || "",
+        description: item.description || "",
+        descriptionFi: item.descriptionFi || "",
+        price: Number(item.price),
+
+        menuType: item.menuType || "lunch",
+
+        category:
+          item.category ||
+          (item.menuType === "fine_dining" ? "starter" : "buffet"),
+
+        dayOfWeek:
+          item.menuType === "fine_dining" ? null : item.dayOfWeek || "Monday",
+
+        glutenFree: Boolean(item.glutenFree),
+
+        lactoseFree: Boolean(item.lactoseFree),
+
+        vegetarian: Boolean(item.vegetarian),
+
+        vegan: Boolean(item.vegan),
+
+        isActive: true,
+      });
+
+      await refreshMenu();
+
+      setMessage("Menu item restored successfully.");
+    } catch (err) {
+      setError(err.response?.data?.message || "Could not restore menu item.");
     }
   };
 
@@ -204,22 +278,17 @@ function Admin() {
       const data = await getOrders();
       setOrders(data);
     } catch (err) {
-      setError(
-        err.response?.data?.message ||
-          "Could not load orders."
-      );
+      setError(err.response?.data?.message || "Could not load orders.");
     }
   };
 
   const loadReservations = async () => {
     try {
       const data = await getReservations();
+
       setReservations(data);
     } catch (err) {
-      setError(
-        err.response?.data?.message ||
-          "Could not load reservations."
-      );
+      setError(err.response?.data?.message || "Could not load reservations.");
     }
   };
 
@@ -246,25 +315,17 @@ function Admin() {
 
       setOrders((currentOrders) =>
         currentOrders.map((order) =>
-          order.id === id
-            ? { ...order, status }
-            : order
-        )
+          order.id === id ? { ...order, status } : order,
+        ),
       );
 
       setMessage("Order status updated successfully.");
     } catch (err) {
-      setError(
-        err.response?.data?.message ||
-          "Could not update order status."
-      );
+      setError(err.response?.data?.message || "Could not update order status.");
     }
   };
 
-  const handleReservationStatusChange = async (
-    id,
-    status
-  ) => {
+  const handleReservationStatusChange = async (id, status) => {
     setError("");
     setMessage("");
 
@@ -274,18 +335,18 @@ function Admin() {
       setReservations((currentReservations) =>
         currentReservations.map((reservation) =>
           reservation.id === id
-            ? { ...reservation, status }
-            : reservation
-        )
+            ? {
+                ...reservation,
+                status,
+              }
+            : reservation,
+        ),
       );
 
-      setMessage(
-        "Reservation status updated successfully."
-      );
+      setMessage("Reservation status updated successfully.");
     } catch (err) {
       setError(
-        err.response?.data?.message ||
-          "Could not update reservation status."
+        err.response?.data?.message || "Could not update reservation status.",
       );
     }
   };
@@ -293,15 +354,12 @@ function Admin() {
   const handleLogout = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("user");
+
     navigate("/login");
   };
 
   if (loading) {
-    return (
-      <main className="admin-page">
-        Loading admin dashboard...
-      </main>
-    );
+    return <main className="admin-page">Loading admin dashboard...</main>;
   }
 
   return (
@@ -312,48 +370,46 @@ function Admin() {
         <p>Welcome, {admin?.name}</p>
 
         <div className="admin-navigation">
-          <button
-            type="button"
-            onClick={() => handleSectionChange("menu")}
-          >
+          <button type="button" onClick={() => handleSectionChange("menu")}>
             Manage Menu
           </button>
 
-          <button
-            type="button"
-            onClick={() => handleSectionChange("orders")}
-          >
+          <button type="button" onClick={() => handleSectionChange("orders")}>
             Manage Orders
           </button>
 
           <button
             type="button"
-            onClick={() =>
-              handleSectionChange("reservations")
-            }
+            onClick={() => handleSectionChange("reservations")}
           >
             Manage Reservations
           </button>
         </div>
 
-        {error && (
-          <p className="auth-error">{error}</p>
-        )}
+        {error && <p className="auth-error">{error}</p>}
 
-        {message && (
-          <p className="auth-success">{message}</p>
-        )}
+        {message && <p className="auth-success">{message}</p>}
 
         {activeSection === "menu" && (
           <section className="admin-section">
-            <h2>
-              {editingId
-                ? "Edit Menu Item"
-                : "Add Menu Item"}
-            </h2>
+            <h2>{editingId ? "Edit Menu Item" : "Add Menu Item"}</h2>
 
             <form onSubmit={handleSubmitMenuItem}>
+              <label htmlFor="menuType">Menu Type</label>
+
+              <select
+                id="menuType"
+                name="menuType"
+                value={formData.menuType}
+                onChange={handleChange}
+              >
+                <option value="lunch">Lunch Menu</option>
+
+                <option value="fine_dining">À La Carte Menu</option>
+              </select>
+
               <label htmlFor="name">Dish Name</label>
+
               <input
                 id="name"
                 name="name"
@@ -363,9 +419,8 @@ function Admin() {
                 required
               />
 
-              <label htmlFor="nameFi">
-                Dish Name in Finnish
-              </label>
+              <label htmlFor="nameFi">Dish Name in Finnish</label>
+
               <input
                 id="nameFi"
                 name="nameFi"
@@ -374,9 +429,8 @@ function Admin() {
                 onChange={handleChange}
               />
 
-              <label htmlFor="description">
-                Description
-              </label>
+              <label htmlFor="description">Description</label>
+
               <textarea
                 id="description"
                 name="description"
@@ -384,9 +438,8 @@ function Admin() {
                 onChange={handleChange}
               />
 
-              <label htmlFor="descriptionFi">
-                Description in Finnish
-              </label>
+              <label htmlFor="descriptionFi">Description in Finnish</label>
+
               <textarea
                 id="descriptionFi"
                 name="descriptionFi"
@@ -395,10 +448,11 @@ function Admin() {
               />
 
               <label htmlFor="price">Price</label>
+
               <input
                 id="price"
-                type="number"
                 name="price"
+                type="number"
                 min="0"
                 step="0.01"
                 value={formData.price}
@@ -406,19 +460,47 @@ function Admin() {
                 required
               />
 
-              <label htmlFor="dayOfWeek">Day</label>
-              <select
-                id="dayOfWeek"
-                name="dayOfWeek"
-                value={formData.dayOfWeek}
-                onChange={handleChange}
-              >
-                <option value="Monday">Monday</option>
-                <option value="Tuesday">Tuesday</option>
-                <option value="Wednesday">Wednesday</option>
-                <option value="Thursday">Thursday</option>
-                <option value="Friday">Friday</option>
-              </select>
+              {formData.menuType === "lunch" && (
+                <>
+                  <label htmlFor="dayOfWeek">Day</label>
+
+                  <select
+                    id="dayOfWeek"
+                    name="dayOfWeek"
+                    value={formData.dayOfWeek}
+                    onChange={handleChange}
+                  >
+                    <option value="Monday">Monday</option>
+
+                    <option value="Tuesday">Tuesday</option>
+
+                    <option value="Wednesday">Wednesday</option>
+
+                    <option value="Thursday">Thursday</option>
+
+                    <option value="Friday">Friday</option>
+                  </select>
+                </>
+              )}
+
+              {formData.menuType === "fine_dining" && (
+                <>
+                  <label htmlFor="category">Category</label>
+
+                  <select
+                    id="category"
+                    name="category"
+                    value={formData.category}
+                    onChange={handleChange}
+                  >
+                    {fineDiningCategories.map((category) => (
+                      <option key={category.value} value={category.value}>
+                        {category.label}
+                      </option>
+                    ))}
+                  </select>
+                </>
+              )}
 
               <div className="admin-checkboxes">
                 <label>
@@ -460,19 +542,24 @@ function Admin() {
                   />
                   Vegan
                 </label>
+
+                <label>
+                  <input
+                    type="checkbox"
+                    name="isActive"
+                    checked={formData.isActive}
+                    onChange={handleChange}
+                  />
+                  Active
+                </label>
               </div>
 
               <button type="submit">
-                {editingId
-                  ? "Save Changes"
-                  : "Add Menu Item"}
+                {editingId ? "Save Changes" : "Add Menu Item"}
               </button>
 
               {editingId && (
-                <button
-                  type="button"
-                  onClick={handleCancelEdit}
-                >
+                <button type="button" onClick={handleCancelEdit}>
                   Cancel Edit
                 </button>
               )}
@@ -484,41 +571,48 @@ function Admin() {
               <p>No menu items found.</p>
             ) : (
               menuItems.map((item) => (
-                <div
-                  key={item.id}
-                  className="admin-menu-item"
-                >
+                <div key={item.id} className="admin-menu-item">
                   <div>
                     <strong>{item.name}</strong>
 
-                    {item.nameFi && (
-                      <p>{item.nameFi}</p>
-                    )}
+                    {item.nameFi && <p>{item.nameFi}</p>}
 
                     <p>
-                      {item.dayOfWeek} — €
+                      {item.menuType === "fine_dining"
+                        ? `À La Carte — ${item.category || "No category"}`
+                        : `Lunch — ${item.dayOfWeek || "No day"}`}
+                      {" — €"}
                       {Number(item.price).toFixed(2)}
+                    </p>
+
+                    <p>
+                      Status: {Boolean(item.isActive) ? "Active" : "Archived"}
                     </p>
                   </div>
 
                   <div className="admin-item-actions">
                     <button
                       type="button"
-                      onClick={() =>
-                        handleEditMenuItem(item)
-                      }
+                      onClick={() => handleEditMenuItem(item)}
                     >
                       Edit
                     </button>
 
-                    <button
-                      type="button"
-                      onClick={() =>
-                        handleDeleteMenuItem(item.id)
-                      }
-                    >
-                      Delete
-                    </button>
+                    {Boolean(item.isActive) ? (
+                      <button
+                        type="button"
+                        onClick={() => handleArchiveMenuItem(item.id)}
+                      >
+                        Archive
+                      </button>
+                    ) : (
+                      <button
+                        type="button"
+                        onClick={() => handleRestoreMenuItem(item)}
+                      >
+                        Restore
+                      </button>
+                    )}
                   </div>
                 </div>
               ))
@@ -534,25 +628,19 @@ function Admin() {
               <p>No orders found.</p>
             ) : (
               orders.map((order) => (
-                <div
-                  key={order.id}
-                  className="admin-order-item"
-                >
+                <div key={order.id} className="admin-order-item">
                   <h3>Order #{order.id}</h3>
 
                   <p>
-                    <strong>Customer ID:</strong>{" "}
-                    {order.customerId}
+                    <strong>Customer ID:</strong> {order.customerId}
                   </p>
 
                   <p>
-                    <strong>Order date:</strong>{" "}
-                    {order.orderDate}
+                    <strong>Order date:</strong> {order.orderDate}
                   </p>
 
                   <p>
-                    <strong>Pickup time:</strong>{" "}
-                    {order.pickupTime}
+                    <strong>Pickup time:</strong> {order.pickupTime}
                   </p>
 
                   <p>
@@ -560,27 +648,17 @@ function Admin() {
                     {Number(order.totalPrice).toFixed(2)}
                   </p>
 
-                  <label
-                    htmlFor={`order-status-${order.id}`}
-                  >
-                    Status
-                  </label>
+                  <label htmlFor={`order-status-${order.id}`}>Status</label>
 
                   <select
                     id={`order-status-${order.id}`}
                     value={order.status}
                     onChange={(event) =>
-                      handleOrderStatusChange(
-                        order.id,
-                        event.target.value
-                      )
+                      handleOrderStatusChange(order.id, event.target.value)
                     }
                   >
                     {orderStatuses.map((status) => (
-                      <option
-                        key={status}
-                        value={status}
-                      >
+                      <option key={status} value={status}>
                         {status}
                       </option>
                     ))}
@@ -599,48 +677,35 @@ function Admin() {
               <p>No reservations found.</p>
             ) : (
               reservations.map((reservation) => (
-                <div
-                  key={reservation.id}
-                  className="admin-reservation-item"
-                >
-                  <h3>
-                    Reservation #{reservation.id}
-                  </h3>
+                <div key={reservation.id} className="admin-reservation-item">
+                  <h3>Reservation #{reservation.id}</h3>
 
                   <p>
-                    <strong>Customer ID:</strong>{" "}
-                    {reservation.customerId}
+                    <strong>Customer ID:</strong> {reservation.customerId}
                   </p>
 
                   <p>
-                    <strong>Table ID:</strong>{" "}
-                    {reservation.tableId}
+                    <strong>Table ID:</strong> {reservation.tableId}
                   </p>
 
                   <p>
-                    <strong>Date:</strong>{" "}
-                    {reservation.date}
+                    <strong>Date:</strong> {reservation.date}
                   </p>
 
                   <p>
-                    <strong>Time:</strong>{" "}
-                    {reservation.time}
+                    <strong>Time:</strong> {reservation.time}
                   </p>
 
                   <p>
-                    <strong>Guests:</strong>{" "}
-                    {reservation.numberOfGuests}
+                    <strong>Guests:</strong> {reservation.numberOfGuests}
                   </p>
 
                   <p>
                     <strong>Special requests:</strong>{" "}
-                    {reservation.specialRequests ||
-                      "None"}
+                    {reservation.specialRequests || "None"}
                   </p>
 
-                  <label
-                    htmlFor={`reservation-status-${reservation.id}`}
-                  >
+                  <label htmlFor={`reservation-status-${reservation.id}`}>
                     Status
                   </label>
 
@@ -650,20 +715,15 @@ function Admin() {
                     onChange={(event) =>
                       handleReservationStatusChange(
                         reservation.id,
-                        event.target.value
+                        event.target.value,
                       )
                     }
                   >
-                    {reservationStatuses.map(
-                      (status) => (
-                        <option
-                          key={status}
-                          value={status}
-                        >
-                          {status}
-                        </option>
-                      )
-                    )}
+                    {reservationStatuses.map((status) => (
+                      <option key={status} value={status}>
+                        {status}
+                      </option>
+                    ))}
                   </select>
                 </div>
               ))
@@ -671,10 +731,7 @@ function Admin() {
           </section>
         )}
 
-        <button
-          type="button"
-          onClick={handleLogout}
-        >
+        <button type="button" onClick={handleLogout}>
           Logout
         </button>
       </section>

@@ -19,17 +19,22 @@ function Navbar() {
   return (
     <nav>
       <Link to="/" className="logo">
-        <img
-          src={logo}
-          alt="Nordic Spices"
-          className="navbar-logo"
-        />
+        <img src={logo} alt="Nordic Spices" className="navbar-logo" />
       </Link>
 
       <div className="nav-links">
-        <NavLink to="/" end>{t.home}</NavLink>
-        <NavLink to="/menu">{t.menu}</NavLink>
+        <NavLink to="/" end>
+          {t.home}
+        </NavLink>
+
+        <NavLink to="/menu">
+          {language === "fi" ? "Lounasmenu" : "Lunch Menu"}
+        </NavLink>
+
+        <NavLink to="/fine-dining">À La Carte Menu</NavLink>
+
         <NavLink to="/reservation">{t.reservation}</NavLink>
+
         <NavLink to="/restaurant">{t.restaurant}</NavLink>
 
         {!token && (
