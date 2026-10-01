@@ -1,10 +1,10 @@
 export const translations = {
   en: {
     home: "Home",
-    menu: "Lunch Menu",
+    menu: "Menu",
     reservation: "Reservation",
     restaurant: "Restaurant",
-    weeklyLunch: "Weekly Lunch",
+    
     today: "Today",
     viewDetails: "View Dish Details",
     allergens: "Allergens",
@@ -13,10 +13,10 @@ export const translations = {
 
   fi: {
     home: "Etusivu",
-    menu: "Lounasmenu",
+    menu: "Menu",
     reservation: "Varaus",
     restaurant: "Ravintola",
-    weeklyLunch: "Viikon lounas",
+  
     today: "Tänään",
     viewDetails: "Näytä annoksen tiedot",
     allergens: "Allergeenit",
