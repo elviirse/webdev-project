@@ -103,7 +103,7 @@ function Restaurant() {
             <div className="restaurant-card-line"></div>
 
             <p>{t.weekdays}</p>
-            <strong>11:00 – 15:00</strong>
+            <strong>10:00 – 22:00</strong>
             <p>{t.weekend}</p>
           </article>
 
@@ -114,7 +114,7 @@ function Restaurant() {
 
             <div className="restaurant-card-line"></div>
 
-            <strong>Helsinki, Finland</strong>
+            <strong>Leiritie 1, 01600 Vantaa, Finland</strong>
             <p>{t.address}</p>
           </article>
 
@@ -132,7 +132,7 @@ function Restaurant() {
 
             <p>
               <Phone size={16} strokeWidth={1.4} />
-              {t.phone}: +358 XX XXX XXXX
+              {t.phone}: +358 123 456 789
             </p>
           </article>
 

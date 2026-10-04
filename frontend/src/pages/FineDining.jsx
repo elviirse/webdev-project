@@ -9,7 +9,6 @@ function FineDining() {
 
   const categories = [
     { key: "amuse_bouche", title: "Amuse-Bouche" },
-
     { key: "starter", title: "Starters" },
     { key: "soup", title: "Soups" },
     { key: "main", title: "Main Courses" },
@@ -37,6 +36,33 @@ function FineDining() {
 
     fetchFineDiningMenu();
   }, []);
+
+  const parseDishDescription = (description = "") => {
+    const ingredientsMatch = description.match(
+      /Ingredients:\s*(.*?)(?=\s*Dietary:|\s*Allergens:|$)/i,
+    );
+
+    const dietaryMatch = description.match(
+      /Dietary:\s*(.*?)(?=\s*Allergens:|$)/i,
+    );
+
+    const allergensMatch = description.match(
+      /Allergens:\s*(.*)$/i,
+    );
+
+    const mainDescription = description
+      .replace(/Ingredients:\s*.*?(?=\s*Dietary:|\s*Allergens:|$)/i, "")
+      .replace(/Dietary:\s*.*?(?=\s*Allergens:|$)/i, "")
+      .replace(/Allergens:\s*.*$/i, "")
+      .trim();
+
+    return {
+      mainDescription,
+      ingredients: ingredientsMatch?.[1]?.trim() || "",
+      dietary: dietaryMatch?.[1]?.trim() || "",
+      allergens: allergensMatch?.[1]?.trim() || "",
+    };
+  };
 
   if (loading) {
     return (
@@ -74,7 +100,7 @@ function FineDining() {
         </div>
 
         <p className="luxury-menu-intro">
-          Nordic ingredients meet Indian and Asian flavours in our fine dining
+          Finnish ingredients meet Asian flavours in our fine dining
           experience.
         </p>
       </section>
@@ -94,46 +120,76 @@ function FineDining() {
               <div className="day-heading luxury-day-heading">
                 <div>
                   <span className="day-small-label">FINE DINING</span>
-
                   <h2>{category.title}</h2>
                 </div>
               </div>
 
               <div className="day-dishes">
-                {dishes.map((dish, index) => (
-                  <div className="dish-in-day luxury-dish" key={dish.id}>
-                    <div className="dish-title-row">
-                      <h3>{dish.name}</h3>
+                {dishes.map((dish, index) => {
+                  const {
+                    mainDescription,
+                    ingredients,
+                    dietary,
+                    allergens,
+                  } = parseDishDescription(dish.description);
 
-                      <strong className="dish-price">
-                        €{Number(dish.price).toFixed(2)}
-                      </strong>
-                    </div>
+                  return (
+                    <div className="dish-in-day luxury-dish" key={dish.id}>
+                      <div className="dish-title-row">
+                        <h3>{dish.name}</h3>
 
-                    <p className="dish-description">{dish.description}</p>
-
-                    <div className="menu-meta">
-                      <div className="dietary-tags">
-                        {dish.glutenFree === 1 && <span>GF</span>}
-                        {dish.lactoseFree === 1 && <span>LF</span>}
-                        {dish.vegetarian === 1 && <span>V</span>}
-                        {dish.vegan === 1 && <span>VG</span>}
+                        <strong className="dish-price">
+                          €{Number(dish.price).toFixed(2)}
+                        </strong>
                       </div>
+
+                      {mainDescription && (
+                        <p className="dish-description">
+                          {mainDescription}
+                        </p>
+                      )}
+
+                      {ingredients && (
+                        <p className="dish-description">
+                          <strong>Ingredients:</strong> {ingredients}
+                        </p>
+                      )}
+
+                      {dietary && (
+                        <p className="dish-description">
+                          <strong>Dietary:</strong> {dietary}
+                        </p>
+                      )}
+
+                      {allergens && (
+                        <p className="dish-description">
+                          <strong>Allergens:</strong> {allergens}
+                        </p>
+                      )}
+
+                      <div className="menu-meta">
+                        <div className="dietary-tags">
+                          {dish.glutenFree === 1 && <span>GF</span>}
+                          {dish.lactoseFree === 1 && <span>LF</span>}
+                          {dish.vegetarian === 1 && <span>V</span>}
+                          {dish.vegan === 1 && <span>VG</span>}
+                        </div>
+                      </div>
+
+                      {category.key !== "tasting_menu" && (
+                        <Link
+                          to={`/menu/${dish.id}`}
+                          className="details-link luxury-details-link"
+                        >
+                          VIEW DISH DETAILS
+                          <span>→</span>
+                        </Link>
+                      )}
+
+                      {index < dishes.length - 1 && <hr />}
                     </div>
-
-                    {category.key !== "tasting_menu" && (
-                      <Link
-                        to={`/menu/${dish.id}`}
-                        className="details-link luxury-details-link"
-                      >
-                        VIEW DISH DETAILS
-                        <span>→</span>
-                      </Link>
-                    )}
-
-                    {index < dishes.length - 1 && <hr />}
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             </article>
           );

@@ -15,15 +15,22 @@ function DishDetails() {
     en: {
       notFound: "Dish not found",
       backLunch: "Back to Lunch Menu",
-      backFineDining: "Back to À La Carte Menu",
+      backFineDining: "Back to Fine Dining Menu",
+      lunchSelection: "Lunch Selection",
       ingredients: "Ingredients",
       dietary: "Dietary Information",
-      allergens: "Allergens",
+      allergens: "Allergen Information",
       noIngredients: "No ingredients listed",
       noDietary: "Not specified",
       noAllergens: "No listed allergens",
+      allergenNotice:
+        "Allergen details are not separately listed for this buffet. Please ask the restaurant staff if you have food allergies.",
       dishDetails: "DISH DETAILS",
       loading: "Loading dish...",
+      glutenFree: "G = Gluten-free",
+      lactoseFree: "L = Lactose-free",
+      vegetarian: "V = Vegetarian",
+      naanNotice: "Naan bread contains gluten.",
       days: {
         Monday: "Monday",
         Tuesday: "Tuesday",
@@ -36,15 +43,22 @@ function DishDetails() {
     fi: {
       notFound: "Annosta ei löytynyt",
       backLunch: "Takaisin lounasmenuun",
-      backFineDining: "Takaisin À La Carte -menuun",
+      backFineDining: "Takaisin Fine Dining -menuun",
+      lunchSelection: "Lounasvalikoima",
       ingredients: "Ainesosat",
       dietary: "Ruokavaliotiedot",
-      allergens: "Allergeenit",
+      allergens: "Allergeenitiedot",
       noIngredients: "Ainesosia ei ilmoitettu",
       noDietary: "Ei määritelty",
       noAllergens: "Ei ilmoitettuja allergeeneja",
+      allergenNotice:
+        "Buffetin allergeeneja ei ole ilmoitettu erikseen. Kysy henkilökunnalta lisätietoja, jos sinulla on ruoka-allergioita.",
       dishDetails: "ANNOKSEN TIEDOT",
       loading: "Ladataan annosta...",
+      glutenFree: "G = Gluteeniton",
+      lactoseFree: "L = Laktoositon",
+      vegetarian: "V = Kasvis",
+      naanNotice: "Naan-leipä sisältää gluteenia.",
       days: {
         Monday: "Maanantai",
         Tuesday: "Tiistai",
@@ -102,7 +116,8 @@ function DishDetails() {
     );
   }
 
-  const dishName = language === "fi" && dish.nameFi ? dish.nameFi : dish.name;
+  const dishName =
+    language === "fi" && dish.nameFi ? dish.nameFi : dish.name;
 
   const dishDescription =
     language === "fi" && dish.descriptionFi
@@ -111,8 +126,10 @@ function DishDetails() {
 
   const isFineDining = dish.menuType === "fine_dining";
 
-  // Fine dining information is stored inside the description.
-  // These variables separate it for the three information boxes.
+  const backPath = isFineDining ? "/fine-dining" : "/menu";
+  const backText = isFineDining ? t.backFineDining : t.backLunch;
+
+  // Fine Dining details are stored inside the description.
   let fineDiningIngredients = "";
   let fineDiningDietary = "";
   let fineDiningAllergens = "";
@@ -120,26 +137,23 @@ function DishDetails() {
   if (isFineDining && dish.description) {
     const description = dish.description;
 
+    const ingredientsStart = description.indexOf("Ingredients:");
     const dietaryStart = description.indexOf("Dietary:");
     const allergensStart = description.indexOf("Allergens:");
 
-    // Get ingredients.
-    // Some dishes have Dietary information and some do not.
-    if (dietaryStart !== -1) {
+    if (ingredientsStart !== -1) {
+      const ingredientsEnd =
+        dietaryStart !== -1
+          ? dietaryStart
+          : allergensStart !== -1
+            ? allergensStart
+            : description.length;
+
       fineDiningIngredients = description
-        .slice(0, dietaryStart)
-        .replace("Ingredients:", "")
+        .slice(ingredientsStart + "Ingredients:".length, ingredientsEnd)
         .trim();
-    } else if (allergensStart !== -1) {
-      fineDiningIngredients = description
-        .slice(0, allergensStart)
-        .replace("Ingredients:", "")
-        .trim();
-    } else {
-      fineDiningIngredients = description.replace("Ingredients:", "").trim();
     }
 
-    // Get dietary information if it exists.
     if (dietaryStart !== -1) {
       const dietaryEnd =
         allergensStart !== -1 ? allergensStart : description.length;
@@ -149,7 +163,6 @@ function DishDetails() {
         .trim();
     }
 
-    // Get allergens if they exist.
     if (allergensStart !== -1) {
       fineDiningAllergens = description
         .slice(allergensStart + "Allergens:".length)
@@ -157,8 +170,45 @@ function DishDetails() {
     }
   }
 
-  const backPath = isFineDining ? "/fine-dining" : "/menu";
-  const backText = isFineDining ? t.backFineDining : t.backLunch;
+  // Normal dietary flags from the backend.
+  const dietary = [];
+
+  if (dish.glutenFree === 1) dietary.push("GF");
+  if (dish.lactoseFree === 1) dietary.push("LF");
+  if (dish.vegetarian === 1) dietary.push("VEG");
+  if (dish.vegan === 1) dietary.push("VEGAN");
+
+  // Lunch buffet information is currently stored in description.
+  const isLunchBuffet =
+    dish.menuType === "lunch" &&
+    dish.category === "buffet" &&
+    (!dish.ingredients || dish.ingredients.length === 0);
+
+  const buffetItems = isLunchBuffet
+    ? (dish.description || "")
+        .split("Lunch includes")[0]
+        .split(";")
+        .map((item) => item.trim().replace(/\.$/, ""))
+        .filter(Boolean)
+    : [];
+
+  const buffetDietaryCodes = [];
+
+  if (isLunchBuffet) {
+    const description = dish.description || "";
+
+    if (/\bG\b/.test(description)) {
+      buffetDietaryCodes.push(t.glutenFree);
+    }
+
+    if (/\bL\b/.test(description)) {
+      buffetDietaryCodes.push(t.lactoseFree);
+    }
+
+    if (/\bV\b/.test(description)) {
+      buffetDietaryCodes.push(t.vegetarian);
+    }
+  }
 
   return (
     <main className="luxury-dish-details">
@@ -190,19 +240,16 @@ function DishDetails() {
             <span></span>
           </div>
 
-          {/* Lunch buffet description */}
           {!isFineDining && (
             <p className="detail-description">{dishDescription}</p>
           )}
         </header>
 
-        {/* Detailed boxes are only needed for À La Carte dishes */}
-        {isFineDining && (
+        {isFineDining ? (
           <div className="dish-information-grid">
             <section className="luxury-detail-section ingredients-section">
               <p className="detail-number">01</p>
               <h2>{t.ingredients}</h2>
-
               <p>{fineDiningIngredients || t.noIngredients}</p>
             </section>
 
@@ -221,6 +268,71 @@ function DishDetails() {
 
               <p className="detail-allergen-text">
                 {fineDiningAllergens || t.noAllergens}
+              </p>
+            </section>
+          </div>
+        ) : (
+          <div className="dish-information-grid">
+            <section className="luxury-detail-section ingredients-section">
+              <p className="detail-number">01</p>
+              <h2>{isLunchBuffet ? t.lunchSelection : t.ingredients}</h2>
+
+              <ul>
+                {dish.ingredients?.length > 0
+                  ? dish.ingredients.map((ingredient) => (
+                      <li key={ingredient.id}>
+                        {language === "fi" && ingredient.nameFi
+                          ? ingredient.nameFi
+                          : ingredient.name}
+                      </li>
+                    ))
+                  : buffetItems.map((item, index) => (
+                      <li key={`${item}-${index}`}>{item}</li>
+                    ))}
+              </ul>
+            </section>
+
+            <section className="luxury-detail-section">
+              <p className="detail-number">02</p>
+              <h2>{t.dietary}</h2>
+
+              <div className="detail-dietary-tags">
+                {dietary.map((item) => (
+                  <span key={item}>{item}</span>
+                ))}
+
+                {dietary.length === 0 &&
+                  buffetDietaryCodes.map((item) => (
+                    <span key={item}>{item}</span>
+                  ))}
+
+                {dietary.length === 0 &&
+                  buffetDietaryCodes.length === 0 && (
+                    <span>{t.noDietary}</span>
+                  )}
+              </div>
+
+              {isLunchBuffet && (
+                <p className="detail-allergen-text">{t.naanNotice}</p>
+              )}
+            </section>
+
+            <section className="luxury-detail-section">
+              <p className="detail-number">03</p>
+              <h2>{t.allergens}</h2>
+
+              <p className="detail-allergen-text">
+                {dish.allergens?.length > 0
+                  ? dish.allergens
+                      .map((allergen) =>
+                        language === "fi" && allergen.nameFi
+                          ? allergen.nameFi
+                          : allergen.name,
+                      )
+                      .join(", ")
+                  : isLunchBuffet
+                    ? t.allergenNotice
+                    : t.noAllergens}
               </p>
             </section>
           </div>

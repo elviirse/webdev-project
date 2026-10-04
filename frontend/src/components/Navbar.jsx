@@ -31,7 +31,7 @@ function Navbar() {
           {language === "fi" ? "Lounasmenu" : "Lunch Menu"}
         </NavLink>
 
-        <NavLink to="/fine-dining">À La Carte Menu</NavLink>
+        <NavLink to="/fine-dining">Fine Dining Menu</NavLink>
 
         <NavLink to="/reservation">{t.reservation}</NavLink>
 

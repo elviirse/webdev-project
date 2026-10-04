@@ -46,11 +46,11 @@ function Reservation() {
       error:
         "Something went wrong while creating the reservation. Please try again.",
       lunch: "Opening Hours",
-      lunchHours: "Monday–Friday · 11:00–14:00",
+      lunchHours: "Monday–Friday · 10:00–22:00",
       experience: "Fine Dining",
       experienceText: "Finnish ingredients · Asian soul",
       party: "Your Party",
-      partyText: "Tables for 1–6 guests",
+      partyText: "Tables for guests",
     },
 
     fi: {

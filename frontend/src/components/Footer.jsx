@@ -6,15 +6,18 @@ function Footer() {
 
   const text = {
     en: {
-      tagline: "Finnish Ingredients. Asian Soul.",
+      tagline: "Finnish Ingredients. Indian Soul.",
       explore: "Explore",
       home: "Home",
       menu: "Lunch Menu",
+      fineDining: "Fine Dining Menu",
       reservation: "Reservation",
       restaurant: "Restaurant",
+      login: "Login",
+      register: "Register",
       hours: "Opening Hours",
       weekdays: "Monday – Friday",
-      location: "Helsinki, Finland",
+      location: " Leiritie 1, 01600 Vantaa, Finland",
       copyright: "© 2026 Nordic Spices. All rights reserved.",
     },
 
@@ -23,11 +26,14 @@ function Footer() {
       explore: "Tutustu",
       home: "Etusivu",
       menu: "Lounasmenu",
+      fineDining: "Fine Dining Menu",
       reservation: "Varaus",
       restaurant: "Ravintola",
+      login: "Kirjaudu",
+      register: "Rekisteröidy",
       hours: "Aukioloajat",
       weekdays: "Maanantai – perjantai",
-      location: "Helsinki, Suomi",
+      location: ": Leiritie 1, 01600 Vantaa, Suomi",
       copyright: "© 2026 Nordic Spices. Kaikki oikeudet pidätetään.",
     },
   };
@@ -48,14 +54,17 @@ function Footer() {
 
           <Link to="/">{t.home}</Link>
           <Link to="/menu">{t.menu}</Link>
+          <Link to="/fine-dining">{t.fineDining}</Link>
           <Link to="/reservation">{t.reservation}</Link>
           <Link to="/restaurant">{t.restaurant}</Link>
+          <Link to="/login">{t.login}</Link>
+          <Link to="/register">{t.register}</Link>
         </div>
 
         <div className="footer-info">
           <h3>{t.hours}</h3>
           <p>{t.weekdays}</p>
-          <p>11:00 – 15:00</p>
+          <p>10:00 – 22:00</p>
           <p>{t.location}</p>
         </div>
 
@@ -65,47 +74,46 @@ function Footer() {
         <p>{t.copyright}</p>
       </div>
 
-      
-          <a
-            href="https://www.instagram.com/nordic_spices12/"
-            target="_blank"
-            rel="noreferrer"
-            aria-label="Instagram"
-            className="instagram-link"
-          >
-            <svg
-              width="24"
-              height="24"
-              viewBox="0 0 24 24"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <rect
-                x="3"
-                y="3"
-                width="18"
-                height="18"
-                rx="5"
-                stroke="white"
-                strokeWidth="2"
-              />
+      <a
+        href="https://www.instagram.com/nordic_spices12/"
+        target="_blank"
+        rel="noreferrer"
+        aria-label="Instagram"
+        className="instagram-link"
+      >
+        <svg
+          width="24"
+          height="24"
+          viewBox="0 0 24 24"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <rect
+            x="3"
+            y="3"
+            width="18"
+            height="18"
+            rx="5"
+            stroke="white"
+            strokeWidth="2"
+          />
 
-              <circle
-                cx="12"
-                cy="12"
-                r="4"
-                stroke="white"
-                strokeWidth="2"
-              />
+          <circle
+            cx="12"
+            cy="12"
+            r="4"
+            stroke="white"
+            strokeWidth="2"
+          />
 
-              <circle
-                cx="17.5"
-                cy="6.5"
-                r="1"
-                fill="white"
-              />
-            </svg>
-          </a>
+          <circle
+            cx="17.5"
+            cy="6.5"
+            r="1"
+            fill="white"
+          />
+        </svg>
+      </a>
     </footer>
   );
 }
