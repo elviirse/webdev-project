@@ -8,6 +8,7 @@ import {
 import {
   createOrder,
   getAllOrders,
+  getCustomerOrders,
   getOrderById,
   updateOrderStatus,
 } from "../controllers/orderController.js";
@@ -23,7 +24,7 @@ const router = express.Router();
  * @apiBody {Object[]} items List of ordered items.
  * @apiBody {Number} items.menuItemId Menu item ID.
  * @apiBody {Number} items.quantity Quantity of the menu item.
- * @apiBody {String} [pickupTime] Requested pickup date and time.
+ * @apiBody {String} pickupTime Requested pickup date and time.
  *
  * @apiSuccess (201) {Number} id Order ID.
  * @apiSuccess (201) {Number} customerId Customer ID.
@@ -45,18 +46,26 @@ router.post("/", createOrder);
  * @apiHeader {String} Authorization Bearer JWT token (admin only).
  *
  * @apiSuccess {Object[]} orders List of all orders.
- * @apiSuccess {Number} orders.id Order ID.
- * @apiSuccess {Number} orders.customerId Customer ID.
- * @apiSuccess {String} orders.orderDate Order creation date and time.
- * @apiSuccess {String} orders.status Order status.
- * @apiSuccess {Number} orders.totalPrice Total order price.
- * @apiSuccess {String} orders.pickupTime Pickup date and time.
- *
  * @apiError (401) Unauthorized Authentication token required or invalid.
  * @apiError (403) Forbidden Admin access required.
  * @apiError (500) ServerError Failed to fetch orders.
  */
 router.get("/", authenticateToken, requireAdmin, getAllOrders);
+
+/**
+ * @api {get} /api/orders/customer/:customerId Get customer orders
+ * @apiName GetCustomerOrders
+ * @apiGroup Orders
+ *
+ * @apiHeader {String} Authorization Bearer JWT token.
+ * @apiParam {Number} customerId Customer ID.
+ *
+ * @apiSuccess {Object[]} orders Customer orders.
+ * @apiError (400) BadRequest Invalid customer ID.
+ * @apiError (401) Unauthorized Authentication token required or invalid.
+ * @apiError (500) ServerError Failed to fetch customer orders.
+ */
+router.get("/customer/:customerId", authenticateToken, getCustomerOrders);
 
 /**
  * @api {get} /api/orders/:id Get order by ID

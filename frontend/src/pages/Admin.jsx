@@ -11,6 +11,7 @@ import {
   updateOrderStatus,
   getReservations,
   updateReservationStatus,
+  archiveReservation,
 } from "../services/adminService.js";
 
 const emptyForm = {
@@ -350,6 +351,30 @@ function Admin() {
       );
     }
   };
+  const handleArchiveReservation = async (id) => {
+    const confirmed = window.confirm(
+      "Archive this reservation? It will be removed from the active reservation list.",
+    );
+
+    if (!confirmed) {
+      return;
+    }
+
+    try {
+      setError("");
+      setMessage("");
+
+      await archiveReservation(id);
+
+      setReservations((currentReservations) =>
+        currentReservations.filter((reservation) => reservation.id !== id),
+      );
+
+      setMessage("Reservation archived successfully.");
+    } catch (err) {
+      setError(err.response?.data?.message || "Could not archive reservation.");
+    }
+  };
 
   const handleLogout = () => {
     localStorage.removeItem("token");
@@ -681,7 +706,14 @@ function Admin() {
                   <h3>Reservation #{reservation.id}</h3>
 
                   <p>
-                    <strong>Customer ID:</strong> {reservation.customerId}
+                    <strong>Customer:</strong>{" "}
+                    {reservation.customerName ||
+                      `Customer #${reservation.customerId}`}
+                  </p>
+
+                  <p>
+                    <strong>Email:</strong>{" "}
+                    {reservation.customerEmail || "Not available"}
                   </p>
 
                   <p>
@@ -725,6 +757,16 @@ function Admin() {
                       </option>
                     ))}
                   </select>
+
+                  {(reservation.status === "completed" ||
+                    reservation.status === "cancelled") && (
+                    <button
+                      type="button"
+                      onClick={() => handleArchiveReservation(reservation.id)}
+                    >
+                      Archive
+                    </button>
+                  )}
                 </div>
               ))
             )}

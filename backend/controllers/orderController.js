@@ -62,7 +62,7 @@ export const createOrder = async (req, res) => {
     let totalPrice = 0;
     const orderItems = [];
 
-    // Validate items and calculate total using DB prices
+    // Validate items and calculate total using database prices
     for (const item of items) {
       const menuItemId = Number(item.menuItemId);
       const quantity = Number(item.quantity);
@@ -177,6 +177,41 @@ export const getAllOrders = async (req, res) => {
 
     res.status(500).json({
       message: "Failed to fetch orders",
+    });
+  }
+};
+
+// GET /api/orders/customer/:customerId
+export const getCustomerOrders = async (req, res) => {
+  try {
+    const customerId = Number(req.params.customerId);
+
+    if (!Number.isInteger(customerId) || customerId < 1) {
+      return res.status(400).json({
+        message: "Invalid customer ID",
+      });
+    }
+
+    const [rows] = await pool.query(
+      `SELECT
+        order_id AS id,
+        customer_id AS customerId,
+        DATE_FORMAT(order_date, '%Y-%m-%d %H:%i:%s') AS orderDate,
+        status,
+        total_price AS totalPrice,
+        DATE_FORMAT(pickup_time, '%Y-%m-%d %H:%i:%s') AS pickupTime
+       FROM orders
+       WHERE customer_id = ?
+       ORDER BY order_id DESC`,
+      [customerId],
+    );
+
+    res.json(rows);
+  } catch (error) {
+    console.error("Error fetching customer orders:", error);
+
+    res.status(500).json({
+      message: "Failed to fetch customer orders",
     });
   }
 };

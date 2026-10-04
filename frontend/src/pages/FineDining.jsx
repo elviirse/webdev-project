@@ -6,6 +6,7 @@ function FineDining() {
   const [menuData, setMenuData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [addedItemId, setAddedItemId] = useState(null);
 
   const categories = [
     { key: "amuse_bouche", title: "Amuse-Bouche" },
@@ -18,6 +19,31 @@ function FineDining() {
     { key: "tasting_menu", title: "Tasting Menus" },
   ];
 
+  const addToCart = (dish) => {
+    const savedCart = JSON.parse(localStorage.getItem("cart")) || [];
+
+    const existingItem = savedCart.find((item) => item.id === dish.id);
+
+    if (existingItem) {
+      existingItem.quantity += 1;
+    } else {
+      savedCart.push({
+        id: dish.id,
+        name: dish.name,
+        price: Number(dish.price),
+        quantity: 1,
+      });
+    }
+
+    localStorage.setItem("cart", JSON.stringify(savedCart));
+
+    setAddedItemId(dish.id);
+
+    setTimeout(() => {
+      setAddedItemId(null);
+    }, 1500);
+  };
+
   useEffect(() => {
     const fetchFineDiningMenu = async () => {
       try {
@@ -25,6 +51,7 @@ function FineDining() {
         setError("");
 
         const response = await api.get("/api/menu/fine-dining");
+
         setMenuData(response.data);
       } catch (err) {
         console.error("Fine Dining API error:", err);
@@ -38,29 +65,58 @@ function FineDining() {
   }, []);
 
   const parseDishDescription = (description = "") => {
-    const ingredientsMatch = description.match(
-      /Ingredients:\s*(.*?)(?=\s*Dietary:|\s*Allergens:|$)/i,
-    );
+    const ingredientsIndex = description.indexOf("Ingredients:");
 
-    const dietaryMatch = description.match(
-      /Dietary:\s*(.*?)(?=\s*Allergens:|$)/i,
-    );
+    const dietaryIndex = description.indexOf("Dietary:");
 
-    const allergensMatch = description.match(
-      /Allergens:\s*(.*)$/i,
-    );
+    const allergensIndex = description.indexOf("Allergens:");
 
-    const mainDescription = description
-      .replace(/Ingredients:\s*.*?(?=\s*Dietary:|\s*Allergens:|$)/i, "")
-      .replace(/Dietary:\s*.*?(?=\s*Allergens:|$)/i, "")
-      .replace(/Allergens:\s*.*$/i, "")
-      .trim();
+    let mainDescription = description;
+    let ingredients = "";
+    let dietary = "";
+    let allergens = "";
+
+    const markerIndexes = [
+      ingredientsIndex,
+      dietaryIndex,
+      allergensIndex,
+    ].filter((index) => index >= 0);
+
+    if (markerIndexes.length > 0) {
+      mainDescription = description.slice(0, Math.min(...markerIndexes)).trim();
+    }
+
+    if (ingredientsIndex >= 0) {
+      const end =
+        dietaryIndex > ingredientsIndex
+          ? dietaryIndex
+          : allergensIndex > ingredientsIndex
+            ? allergensIndex
+            : description.length;
+
+      ingredients = description
+        .slice(ingredientsIndex + "Ingredients:".length, end)
+        .trim();
+    }
+
+    if (dietaryIndex >= 0) {
+      const end =
+        allergensIndex > dietaryIndex ? allergensIndex : description.length;
+
+      dietary = description.slice(dietaryIndex + "Dietary:".length, end).trim();
+    }
+
+    if (allergensIndex >= 0) {
+      allergens = description
+        .slice(allergensIndex + "Allergens:".length)
+        .trim();
+    }
 
     return {
       mainDescription,
-      ingredients: ingredientsMatch?.[1]?.trim() || "",
-      dietary: dietaryMatch?.[1]?.trim() || "",
-      allergens: allergensMatch?.[1]?.trim() || "",
+      ingredients,
+      dietary,
+      allergens,
     };
   };
 
@@ -100,8 +156,7 @@ function FineDining() {
         </div>
 
         <p className="luxury-menu-intro">
-          Finnish ingredients meet Asian flavours in our fine dining
-          experience.
+          Finnish ingredients meet Asian flavours in our fine dining experience.
         </p>
       </section>
 
@@ -126,12 +181,8 @@ function FineDining() {
 
               <div className="day-dishes">
                 {dishes.map((dish, index) => {
-                  const {
-                    mainDescription,
-                    ingredients,
-                    dietary,
-                    allergens,
-                  } = parseDishDescription(dish.description);
+                  const { mainDescription, ingredients, dietary, allergens } =
+                    parseDishDescription(dish.description);
 
                   return (
                     <div className="dish-in-day luxury-dish" key={dish.id}>
@@ -144,9 +195,7 @@ function FineDining() {
                       </div>
 
                       {mainDescription && (
-                        <p className="dish-description">
-                          {mainDescription}
-                        </p>
+                        <p className="dish-description">{mainDescription}</p>
                       )}
 
                       {ingredients && (
@@ -170,20 +219,36 @@ function FineDining() {
                       <div className="menu-meta">
                         <div className="dietary-tags">
                           {dish.glutenFree === 1 && <span>GF</span>}
+
                           {dish.lactoseFree === 1 && <span>LF</span>}
+
                           {dish.vegetarian === 1 && <span>V</span>}
+
                           {dish.vegan === 1 && <span>VG</span>}
                         </div>
                       </div>
 
                       {category.key !== "tasting_menu" && (
-                        <Link
-                          to={`/menu/${dish.id}`}
-                          className="details-link luxury-details-link"
-                        >
-                          VIEW DISH DETAILS
-                          <span>→</span>
-                        </Link>
+                        <>
+                          <Link
+                            to={`/menu/${dish.id}`}
+                            className="details-link luxury-details-link"
+                          >
+                            VIEW DISH DETAILS
+                            <span>→</span>
+                          </Link>
+
+                          <button
+                            type="button"
+                            className="details-link luxury-details-link"
+                            onClick={() => addToCart(dish)}
+                          >
+                            {addedItemId === dish.id
+                              ? "Added ✓"
+                              : "Add to cart"}
+                            <span>+</span>
+                          </button>
+                        </>
                       )}
 
                       {index < dishes.length - 1 && <hr />}

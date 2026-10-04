@@ -6,7 +6,6 @@ export const createReservation = async (req, res) => {
     const { customerId, tableId, date, time, numberOfGuests, specialRequests } =
       req.body;
 
-    // Required fields
     if (
       !customerId ||
       Number(customerId) < 1 ||
@@ -22,7 +21,6 @@ export const createReservation = async (req, res) => {
       });
     }
 
-    // Guest validation
     const guests = Number(numberOfGuests);
 
     if (!Number.isInteger(guests) || guests < 1) {
@@ -31,7 +29,6 @@ export const createReservation = async (req, res) => {
       });
     }
 
-    // Date and time format validation
     const datePattern = /^\d{4}-\d{2}-\d{2}$/;
     const timePattern = /^([01]\d|2[0-3]):[0-5]\d(?::[0-5]\d)?$/;
 
@@ -41,7 +38,6 @@ export const createReservation = async (req, res) => {
       });
     }
 
-    // Check that the date itself is valid
     const [year, month, day] = date.split("-").map(Number);
     const validDate = new Date(year, month - 1, day);
 
@@ -57,7 +53,6 @@ export const createReservation = async (req, res) => {
 
     const normalizedTime = time.length === 5 ? `${time}:00` : time;
 
-    // JavaScript datetime for validation
     const reservationDateTime = new Date(`${date}T${normalizedTime}`);
 
     if (
@@ -69,7 +64,6 @@ export const createReservation = async (req, res) => {
       });
     }
 
-    // MySQL DATETIME value
     const reservationDateTimeSql = `${date} ${normalizedTime}`;
 
     // Check customer
@@ -112,7 +106,7 @@ export const createReservation = async (req, res) => {
       });
     }
 
-    // Check double booking using reservation_datetime
+    // Check double booking
     const [existingReservations] = await pool.query(
       `SELECT reservation_id
        FROM reservation
@@ -128,7 +122,7 @@ export const createReservation = async (req, res) => {
       });
     }
 
-    // Create reservation using reservation_datetime
+    // Create reservation
     const [result] = await pool.query(
       `INSERT INTO reservation
        (
@@ -171,10 +165,56 @@ export const createReservation = async (req, res) => {
 };
 
 // GET /api/reservations
+// Admin gets all non-archived reservations with customer details
 export const getAllReservations = async (req, res) => {
   try {
     const [rows] = await pool.query(`
       SELECT
+        r.reservation_id AS id,
+        r.customer_id AS customerId,
+        c.name AS customerName,
+        c.email AS customerEmail,
+        r.table_id AS tableId,
+        DATE_FORMAT(r.reservation_datetime, '%Y-%m-%d') AS date,
+        TIME_FORMAT(r.reservation_datetime, '%H:%i:%s') AS time,
+        DATE_FORMAT(
+          r.reservation_datetime,
+          '%Y-%m-%d %H:%i:%s'
+        ) AS reservationDateTime,
+        r.guests AS numberOfGuests,
+        r.special_request AS specialRequests,
+        r.status,
+        r.is_archived AS isArchived
+      FROM reservation r
+      LEFT JOIN customer c
+        ON r.customer_id = c.customer_id
+      WHERE r.is_archived = 0
+      ORDER BY r.reservation_id DESC
+    `);
+
+    res.json(rows);
+  } catch (error) {
+    console.error("Error fetching reservations:", error);
+
+    res.status(500).json({
+      message: "Failed to fetch reservations",
+    });
+  }
+};
+
+// GET /api/reservations/customer/:customerId
+export const getCustomerReservations = async (req, res) => {
+  try {
+    const customerId = Number(req.params.customerId);
+
+    if (!Number.isInteger(customerId) || customerId < 1) {
+      return res.status(400).json({
+        message: "Invalid customer ID",
+      });
+    }
+
+    const [rows] = await pool.query(
+      `SELECT
         reservation_id AS id,
         customer_id AS customerId,
         table_id AS tableId,
@@ -187,16 +227,18 @@ export const getAllReservations = async (req, res) => {
         guests AS numberOfGuests,
         special_request AS specialRequests,
         status
-      FROM reservation
-      ORDER BY reservation_id
-    `);
+       FROM reservation
+       WHERE customer_id = ?
+       ORDER BY reservation_datetime DESC`,
+      [customerId],
+    );
 
     res.json(rows);
   } catch (error) {
-    console.error("Error fetching reservations:", error);
+    console.error("Error fetching customer reservations:", error);
 
     res.status(500).json({
-      message: "Failed to fetch reservations",
+      message: "Failed to fetch customer reservations",
     });
   }
 };
@@ -290,6 +332,68 @@ export const updateReservationStatus = async (req, res) => {
 
     res.status(500).json({
       message: "Failed to update reservation status",
+    });
+  }
+};
+
+// PATCH /api/reservations/:id/archive
+export const archiveReservation = async (req, res) => {
+  try {
+    const id = Number(req.params.id);
+
+    if (!Number.isInteger(id) || id < 1) {
+      return res.status(400).json({
+        message: "Invalid reservation ID",
+      });
+    }
+
+    const [reservations] = await pool.query(
+      `SELECT reservation_id, status, is_archived
+       FROM reservation
+       WHERE reservation_id = ?`,
+      [id],
+    );
+
+    if (reservations.length === 0) {
+      return res.status(404).json({
+        message: "Reservation not found",
+      });
+    }
+
+    const reservation = reservations[0];
+
+    if (
+      reservation.status !== "completed" &&
+      reservation.status !== "cancelled"
+    ) {
+      return res.status(400).json({
+        message: "Only completed or cancelled reservations can be archived",
+      });
+    }
+
+    if (Boolean(reservation.is_archived)) {
+      return res.status(400).json({
+        message: "Reservation is already archived",
+      });
+    }
+
+    await pool.query(
+      `UPDATE reservation
+       SET is_archived = 1
+       WHERE reservation_id = ?`,
+      [id],
+    );
+
+    res.json({
+      id,
+      isArchived: true,
+      message: "Reservation archived successfully",
+    });
+  } catch (error) {
+    console.error("Error archiving reservation:", error);
+
+    res.status(500).json({
+      message: "Failed to archive reservation",
     });
   }
 };

@@ -52,9 +52,29 @@ function Account() {
 
         {user && (
           <>
-            <p><strong>Name:</strong> {user.name}</p>
-            <p><strong>Email:</strong> {user.email}</p>
-            <p><strong>Phone:</strong> {user.phone || "Not provided"}</p>
+            <p>
+              <strong>Name:</strong> {user.name}
+            </p>
+
+            <p>
+              <strong>Email:</strong> {user.email}
+            </p>
+
+            <p>
+              <strong>Phone:</strong> {user.phone || "Not provided"}
+            </p>
+
+            <button type="button" onClick={() => navigate("/cart")}>
+              My Cart
+            </button>
+
+            <button type="button" onClick={() => navigate("/my-orders")}>
+              My Orders
+            </button>
+
+            <button type="button" onClick={() => navigate("/my-reservations")}>
+              My Reservations
+            </button>
 
             <button type="button" onClick={handleLogout}>
               Logout

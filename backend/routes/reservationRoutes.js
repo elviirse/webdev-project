@@ -8,8 +8,10 @@ import {
 import {
   createReservation,
   getAllReservations,
+  getCustomerReservations,
   getReservationById,
   updateReservationStatus,
+  archiveReservation,
 } from "../controllers/reservationController.js";
 
 const router = express.Router();
@@ -27,47 +29,65 @@ const router = express.Router();
  * @apiBody {String} [specialRequests] Optional special requests.
  *
  * @apiSuccess (201) {Number} id Reservation ID.
- * @apiSuccess (201) {Number} customerId Customer ID.
- * @apiSuccess (201) {Number} tableId Restaurant table ID.
- * @apiSuccess (201) {String} date Reservation date.
- * @apiSuccess (201) {String} time Reservation time.
- * @apiSuccess (201) {Number} numberOfGuests Number of guests.
- * @apiSuccess (201) {String} specialRequests Special requests.
  * @apiSuccess (201) {String} status Reservation status.
- *
- * @apiError (400) BadRequest Invalid reservation data or table capacity exceeded.
- * @apiError (404) NotFound Customer or table not found.
- * @apiError (409) Conflict Table is already reserved for the selected date and time.
- * @apiError (500) ServerError Failed to create reservation.
  */
 router.post("/", createReservation);
 
 /**
- * @api {get} /api/reservations Get all reservations
+ * @api {get} /api/reservations Get all active reservations
  * @apiName GetAllReservations
  * @apiGroup Reservations
  *
  * @apiHeader {String} Authorization Bearer JWT token (admin only).
- *
- * @apiSuccess {Object[]} reservations List of reservations.
- * @apiSuccess {Number} reservations.id Reservation ID.
- * @apiSuccess {Number} reservations.customerId Customer ID.
- * @apiSuccess {Number} reservations.tableId Restaurant table ID.
- * @apiSuccess {String} reservations.date Reservation date.
- * @apiSuccess {String} reservations.time Reservation time.
- * @apiSuccess {Number} reservations.numberOfGuests Number of guests.
- * @apiSuccess {String} reservations.specialRequests Special requests.
- * @apiSuccess {String} reservations.status Reservation status.
- *
- * @apiError (401) Unauthorized Authentication token required or invalid.
- * @apiError (403) Forbidden Admin access required.
- * @apiError (500) ServerError Failed to fetch reservations.
  */
-router.get(
-  "/",
+router.get("/", authenticateToken, requireAdmin, getAllReservations);
+
+/**
+ * @api {get} /api/reservations/customer/:customerId Get customer reservations
+ * @apiName GetCustomerReservations
+ * @apiGroup Reservations
+ *
+ * @apiHeader {String} Authorization Bearer JWT token.
+ * @apiParam {Number} customerId Customer ID.
+ */
+router.get("/customer/:customerId", authenticateToken, getCustomerReservations);
+
+/**
+ * @api {patch} /api/reservations/:id/status Update reservation status
+ * @apiName UpdateReservationStatus
+ * @apiGroup Reservations
+ *
+ * @apiHeader {String} Authorization Bearer JWT token (admin only).
+ * @apiParam {Number} id Reservation ID.
+ *
+ * @apiBody {String="pending","confirmed","cancelled","completed"} status New reservation status.
+ */
+router.patch(
+  "/:id/status",
   authenticateToken,
   requireAdmin,
-  getAllReservations
+  updateReservationStatus,
+);
+
+/**
+ * @api {patch} /api/reservations/:id/archive Archive reservation
+ * @apiName ArchiveReservation
+ * @apiGroup Reservations
+ *
+ * @apiDescription Archive a completed or cancelled reservation.
+ *
+ * @apiHeader {String} Authorization Bearer JWT token (admin only).
+ * @apiParam {Number} id Reservation ID.
+ *
+ * @apiSuccess {Number} id Reservation ID.
+ * @apiSuccess {Boolean} isArchived Archive status.
+ * @apiSuccess {String} message Success message.
+ */
+router.patch(
+  "/:id/archive",
+  authenticateToken,
+  requireAdmin,
+  archiveReservation,
 );
 
 /**
@@ -76,47 +96,7 @@ router.get(
  * @apiGroup Reservations
  *
  * @apiParam {Number} id Reservation ID.
- *
- * @apiSuccess {Number} id Reservation ID.
- * @apiSuccess {Number} customerId Customer ID.
- * @apiSuccess {Number} tableId Restaurant table ID.
- * @apiSuccess {String} date Reservation date.
- * @apiSuccess {String} time Reservation time.
- * @apiSuccess {Number} numberOfGuests Number of guests.
- * @apiSuccess {String} specialRequests Special requests.
- * @apiSuccess {String} status Reservation status.
- *
- * @apiError (400) BadRequest Invalid reservation ID.
- * @apiError (404) NotFound Reservation not found.
- * @apiError (500) ServerError Failed to fetch reservation.
  */
 router.get("/:id", getReservationById);
-
-/**
- * @api {patch} /api/reservations/:id/status Update reservation status
- * @apiName UpdateReservationStatus
- * @apiGroup Reservations
- *
- * @apiHeader {String} Authorization Bearer JWT token (admin only).
- *
- * @apiParam {Number} id Reservation ID.
- * @apiBody {String="pending","confirmed","cancelled","completed"} status New reservation status.
- *
- * @apiSuccess {Number} id Reservation ID.
- * @apiSuccess {String} status Updated reservation status.
- * @apiSuccess {String} message Success message.
- *
- * @apiError (400) BadRequest Invalid reservation ID or status.
- * @apiError (401) Unauthorized Authentication token required or invalid.
- * @apiError (403) Forbidden Admin access required.
- * @apiError (404) NotFound Reservation not found.
- * @apiError (500) ServerError Failed to update reservation status.
- */
-router.patch(
-  "/:id/status",
-  authenticateToken,
-  requireAdmin,
-  updateReservationStatus
-);
 
 export default router;

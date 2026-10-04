@@ -76,8 +76,7 @@ function Reservation() {
       message: "Pöytävarauksesi on luotu onnistuneesti.",
       noTable:
         "Valitulle päivälle, ajalle ja seurueelle ei ole vapaata pöytää.",
-      error:
-        "Varauksen luomisessa tapahtui virhe. Yritä uudelleen.",
+      error: "Varauksen luomisessa tapahtui virhe. Yritä uudelleen.",
       lunch: "Lounas",
       lunchHours: "Maanantai–perjantai · 11:00–14:00",
       experience: "Fine Dining",
@@ -109,17 +108,20 @@ function Reservation() {
     setError("");
 
     try {
+      const user = JSON.parse(localStorage.getItem("user"));
+
+      if (!user?.customerId) {
+        setError("Please login before making a reservation.");
+        return;
+      }
       // 1. Check available tables
-      const availabilityResponse = await api.get(
-        "/api/tables/available",
-        {
-          params: {
-            date: formData.date,
-            time: formData.time,
-            guests: Number(formData.guests),
-          },
-        }
-      );
+      const availabilityResponse = await api.get("/api/tables/available", {
+        params: {
+          date: formData.date,
+          time: formData.time,
+          guests: Number(formData.guests),
+        },
+      });
 
       const availableTables = availabilityResponse.data;
 
@@ -134,7 +136,7 @@ function Reservation() {
 
       // 4. Create reservation
       await api.post("/api/reservations", {
-        customerId: 1,
+        customerId: user.customerId,
         tableId: selectedTable.id,
         date: formData.date,
         time: formData.time,
@@ -173,14 +175,10 @@ function Reservation() {
 
       <section className="reservation-main">
         <div className="reservation-info-panel">
-          <p className="reservation-info-label">
-            NORDIC SPICES
-          </p>
+          <p className="reservation-info-label">NORDIC SPICES</p>
 
           <h2>
-            {language === "fi"
-              ? "Suunnittele vierailusi"
-              : "Plan Your Visit"}
+            {language === "fi" ? "Suunnittele vierailusi" : "Plan Your Visit"}
           </h2>
 
           <div className="reservation-info-item">
@@ -293,17 +291,14 @@ function Reservation() {
             >
               {[1, 2, 3, 4, 5, 6].map((number) => (
                 <option key={number} value={number}>
-                  {number}{" "}
-                  {number === 1 ? t.guest : t.guestsWord}
+                  {number} {number === 1 ? t.guest : t.guestsWord}
                 </option>
               ))}
             </select>
           </div>
 
           <div className="form-group">
-            <label htmlFor="specialRequests">
-              {t.requests}
-            </label>
+            <label htmlFor="specialRequests">{t.requests}</label>
 
             <textarea
               id="specialRequests"
