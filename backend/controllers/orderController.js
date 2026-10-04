@@ -9,7 +9,15 @@ export const createOrder = async (req, res) => {
       message: "Valid customer ID is required",
     });
   }
-
+  // Customer can only place an order for their own account
+  if (
+    req.user.role !== "admin" &&
+    Number(req.user.customerId) !== Number(customerId)
+  ) {
+    return res.status(403).json({
+      message: "You can only place an order for your own account",
+    });
+  }
   if (!Array.isArray(items) || items.length === 0) {
     return res.status(400).json({
       message: "Order must contain at least one item",
@@ -161,14 +169,24 @@ export const getAllOrders = async (req, res) => {
   try {
     const [rows] = await pool.query(`
       SELECT
-        order_id AS id,
-        customer_id AS customerId,
-        DATE_FORMAT(order_date, '%Y-%m-%d %H:%i:%s') AS orderDate,
-        status,
-        total_price AS totalPrice,
-        DATE_FORMAT(pickup_time, '%Y-%m-%d %H:%i:%s') AS pickupTime
-      FROM orders
-      ORDER BY order_id
+        o.order_id AS id,
+        o.customer_id AS customerId,
+        c.name AS customerName,
+        c.email AS customerEmail,
+        DATE_FORMAT(
+          o.order_date,
+          '%Y-%m-%d %H:%i:%s'
+        ) AS orderDate,
+        o.status,
+        o.total_price AS totalPrice,
+        DATE_FORMAT(
+          o.pickup_time,
+          '%Y-%m-%d %H:%i:%s'
+        ) AS pickupTime
+      FROM orders o
+      LEFT JOIN customer c
+        ON o.customer_id = c.customer_id
+      ORDER BY o.order_id DESC
     `);
 
     res.json(rows);
@@ -180,7 +198,6 @@ export const getAllOrders = async (req, res) => {
     });
   }
 };
-
 // GET /api/orders/customer/:customerId
 export const getCustomerOrders = async (req, res) => {
   try {
@@ -189,6 +206,17 @@ export const getCustomerOrders = async (req, res) => {
     if (!Number.isInteger(customerId) || customerId < 1) {
       return res.status(400).json({
         message: "Invalid customer ID",
+      });
+    }
+
+    // Customers can only view their own orders.
+    // Admins may view any customer's orders.
+    if (
+      req.user.role !== "admin" &&
+      Number(req.user.customerId) !== customerId
+    ) {
+      return res.status(403).json({
+        message: "You can only view your own orders",
       });
     }
 

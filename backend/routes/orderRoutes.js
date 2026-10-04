@@ -20,6 +20,8 @@ const router = express.Router();
  * @apiName CreateOrder
  * @apiGroup Orders
  *
+ * @apiHeader {String} Authorization Bearer JWT token.
+ *
  * @apiBody {Number} customerId Customer ID.
  * @apiBody {Object[]} items List of ordered items.
  * @apiBody {Number} items.menuItemId Menu item ID.
@@ -34,9 +36,11 @@ const router = express.Router();
  * @apiSuccess (201) {Number} totalPrice Total order price.
  *
  * @apiError (400) BadRequest Invalid order data.
+ * @apiError (401) Unauthorized Authentication token required or invalid.
+ * @apiError (403) Forbidden Customer ID does not match authenticated user.
  * @apiError (404) NotFound Customer or menu item not found.
  */
-router.post("/", createOrder);
+router.post("/", authenticateToken, createOrder);
 
 /**
  * @api {get} /api/orders Get all orders
@@ -63,6 +67,7 @@ router.get("/", authenticateToken, requireAdmin, getAllOrders);
  * @apiSuccess {Object[]} orders Customer orders.
  * @apiError (400) BadRequest Invalid customer ID.
  * @apiError (401) Unauthorized Authentication token required or invalid.
+ * @apiError (403) Forbidden Customers can only view their own orders.
  * @apiError (500) ServerError Failed to fetch customer orders.
  */
 router.get("/customer/:customerId", authenticateToken, getCustomerOrders);

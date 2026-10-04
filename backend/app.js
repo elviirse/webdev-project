@@ -1,0 +1,32 @@
+import express from "express";
+import cors from "cors";
+
+import authRoutes from "./routes/authRoutes.js";
+import menuRoutes from "./routes/menuRoutes.js";
+import orderRoutes from "./routes/orderRoutes.js";
+import reservationRoutes from "./routes/reservationRoutes.js";
+import openingHoursRoutes from "./routes/openingHoursRoutes.js";
+import tableRoutes from "./routes/tableRoutes.js";
+import hslRoutes from "./routes/hslRoutes.js";
+
+const app = express();
+
+// Middleware
+app.use(cors());
+app.use(express.json());
+
+// Root route
+app.get("/", (req, res) => {
+  res.send("Welcome to my REST API!");
+});
+
+// API routes
+app.use("/api/menu", menuRoutes);
+app.use("/api/orders", orderRoutes);
+app.use("/api/reservations", reservationRoutes);
+app.use("/api/opening-hours", openingHoursRoutes);
+app.use("/api/tables", tableRoutes);
+app.use("/api/auth", authRoutes);
+app.use("/api/hsl", hslRoutes);
+
+export default app;

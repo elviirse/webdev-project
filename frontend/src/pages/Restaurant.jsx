@@ -1,14 +1,38 @@
-import {
-  Clock,
-  MapPin,
-  Mail,
-  Phone,
-  Bus,
-} from "lucide-react";
+import { useEffect, useState } from "react";
+
+import { Clock, MapPin, Mail, Phone, Bus } from "lucide-react";
 import { useLanguage } from "../LanguageContext.jsx";
+import api from "../services/api.js";
 
 function Restaurant() {
   const { language } = useLanguage();
+  const [hslStops, setHslStops] = useState([]);
+  const [hslLoading, setHslLoading] = useState(true);
+  const [hslError, setHslError] = useState("");
+
+  useEffect(() => {
+    const fetchHslStops = async () => {
+      try {
+        setHslLoading(true);
+
+        const response = await api.get("/api/hsl/stops");
+
+        setHslStops(response.data);
+        setHslError("");
+      } catch (error) {
+        console.error("Error loading HSL stops:", error);
+        setHslError(
+          language === "fi"
+            ? "Julkisen liikenteen tietoja ei voitu ladata."
+            : "Public transport information could not be loaded.",
+        );
+      } finally {
+        setHslLoading(false);
+      }
+    };
+
+    fetchHslStops();
+  }, [language]);
 
   const text = {
     en: {
@@ -27,14 +51,14 @@ function Restaurant() {
       gettingHere: "GETTING HERE",
       transport: "Public Transport",
       transportInfo:
-        "Public transport information will be provided using an open transport API.",
+        "Nearby public transport stops from HSL are shown using the Digitransit Open API.",
     },
 
     fi: {
       visit: "TERVETULOA",
       title: "Nordic Spices",
       intro:
-        "Suomalaiset raaka-aineet kohtaavat intialaisen keittiön lämmön ja maut.",
+        "Lähimmät HSL-pysäkit näytetään Digitransitin avoimen rajapinnan avulla.",
       hours: "Aukioloajat",
       weekdays: "Maanantai – perjantai",
       weekend: "Lauantai – sunnuntai: Suljettu",
@@ -54,14 +78,11 @@ function Restaurant() {
 
   return (
     <main className="luxury-restaurant-page">
-
       <section className="restaurant-luxury-hero">
         <div className="restaurant-luxury-overlay"></div>
 
         <div className="restaurant-luxury-content">
-          <p className="restaurant-luxury-label">
-            {t.visit}
-          </p>
+          <p className="restaurant-luxury-label">{t.visit}</p>
 
           <h1>{t.title}</h1>
 
@@ -71,19 +92,14 @@ function Restaurant() {
             <span></span>
           </div>
 
-          <p className="restaurant-luxury-intro">
-            {t.intro}
-          </p>
+          <p className="restaurant-luxury-intro">{t.intro}</p>
         </div>
       </section>
 
       <section className="restaurant-details-section">
-
         <div className="restaurant-details-heading">
           <p>
-            {language === "fi"
-              ? "SUUNNITTELE VIERAILUSI"
-              : "PLAN YOUR VISIT"}
+            {language === "fi" ? "SUUNNITTELE VIERAILUSI" : "PLAN YOUR VISIT"}
           </p>
 
           <h2>
@@ -94,7 +110,6 @@ function Restaurant() {
         </div>
 
         <div className="restaurant-luxury-grid">
-
           <article className="restaurant-info-card">
             <Clock size={30} strokeWidth={1.3} />
 
@@ -135,37 +150,70 @@ function Restaurant() {
               {t.phone}: +358 123 456 789
             </p>
           </article>
-
         </div>
       </section>
 
       <section className="restaurant-transport">
-
         <div className="restaurant-transport-icon">
           <Bus size={30} strokeWidth={1.3} />
         </div>
 
-        <p className="restaurant-transport-label">
-          {t.gettingHere}
-        </p>
+        <p className="restaurant-transport-label">{t.gettingHere}</p>
 
         <h2>{t.transport}</h2>
 
         <div className="restaurant-transport-line"></div>
 
-        <p className="restaurant-transport-text">
-          {t.transportInfo}
-        </p>
+        <p className="restaurant-transport-text">{t.transportInfo}</p>
+        {hslLoading && (
+          <p className="restaurant-transport-text">
+            {language === "fi"
+              ? "Ladataan lähimpiä pysäkkejä..."
+              : "Loading nearby public transport stops..."}
+          </p>
+        )}
 
+        {hslError && <p className="restaurant-transport-text">{hslError}</p>}
+
+        {!hslLoading && !hslError && hslStops.length > 0 && (
+          <div className="restaurant-hsl-stops">
+            <h3>
+              {language === "fi" ? "Lähimmät HSL-pysäkit" : "Nearest HSL Stops"}
+            </h3>
+
+            {hslStops.map((stop) => (
+              <div className="restaurant-hsl-stop" key={stop.id}>
+                <Bus size={18} strokeWidth={1.4} />
+
+                <div>
+                  <strong>{stop.name}</strong>
+                  <p>
+                    {stop.vehicleMode === "BUS"
+                      ? language === "fi"
+                        ? "Bussi"
+                        : "Bus"
+                      : stop.vehicleMode}
+                    {" · "}
+                    {stop.distance} m
+                  </p>
+                </div>
+              </div>
+            ))}
+
+            <p className="restaurant-transport-text">
+              {language === "fi"
+                ? "Reaaliaikaiset sijaintitiedot: HSL / Digitransit Open API"
+                : "Live location data: HSL / Digitransit Open API"}
+            </p>
+          </div>
+        )}
 
         <iframe
           src="https://www.google.com/maps?q=Leiritie+1,+01600+Vantaa&output=embed"
           title="Restaurant location"
           loading="lazy"
         ></iframe>
-
       </section>
-
     </main>
   );
 }

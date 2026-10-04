@@ -13,13 +13,11 @@ function Cart() {
   const [orderMessage, setOrderMessage] = useState("");
   const [placingOrder, setPlacingOrder] = useState(false);
 
-  // save updated cart dishes in state and localStorage
   const saveCart = (updatedCart) => {
     setCart(updatedCart);
     localStorage.setItem("cart", JSON.stringify(updatedCart));
   };
 
-  // Increase item quantity
   const increaseQuantity = (id) => {
     const updatedCart = cart.map((item) =>
       item.id === id ? { ...item, quantity: item.quantity + 1 } : item,
@@ -28,7 +26,6 @@ function Cart() {
     saveCart(updatedCart);
   };
 
-  // Decrease item quantity
   const decreaseQuantity = (id) => {
     const updatedCart = cart
       .map((item) =>
@@ -39,25 +36,23 @@ function Cart() {
     saveCart(updatedCart);
   };
 
-  // Remove item
   const removeItem = (id) => {
     const updatedCart = cart.filter((item) => item.id !== id);
     saveCart(updatedCart);
   };
 
-  // Calculate cart price total
   const totalPrice = cart.reduce(
     (total, item) => total + item.price * item.quantity,
     0,
   );
 
-  // Send order to backend
   const placeOrder = async () => {
     setOrderMessage("");
 
     const user = JSON.parse(localStorage.getItem("user"));
+    const token = localStorage.getItem("token");
 
-    if (!user) {
+    if (!user?.customerId || !token) {
       setOrderMessage("Please login before placing an order.");
       return;
     }
@@ -86,13 +81,15 @@ function Cart() {
         pickupTime,
       };
 
-      const response = await api.post("/api/orders", orderData);
+      const response = await api.post("/api/orders", orderData, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
 
-      // Clear cart after successful order
       localStorage.removeItem("cart");
       setCart([]);
 
-      // Go to confirmation page
       navigate("/order-confirmation", {
         state: {
           order: response.data,
@@ -129,7 +126,7 @@ function Cart() {
                 <h3>{item.name}</h3>
 
                 <p>
-                  €{item.price.toFixed(2)} × {item.quantity}
+                  €{Number(item.price).toFixed(2)} × {item.quantity}
                 </p>
 
                 <button type="button" onClick={() => decreaseQuantity(item.id)}>

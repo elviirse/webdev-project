@@ -657,9 +657,14 @@ function Admin() {
                   <h3>Order #{order.id}</h3>
 
                   <p>
-                    <strong>Customer ID:</strong> {order.customerId}
+                    <strong>Customer:</strong>{" "}
+                    {order.customerName || `Customer #${order.customerId}`}
                   </p>
 
+                  <p>
+                    <strong>Email:</strong>{" "}
+                    {order.customerEmail || "Not available"}
+                  </p>
                   <p>
                     <strong>Order date:</strong> {order.orderDate}
                   </p>

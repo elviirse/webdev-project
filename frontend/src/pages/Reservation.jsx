@@ -109,11 +109,13 @@ function Reservation() {
 
     try {
       const user = JSON.parse(localStorage.getItem("user"));
+      const token = localStorage.getItem("token");
 
-      if (!user?.customerId) {
+      if (!user?.customerId || !token) {
         setError("Please login before making a reservation.");
         return;
       }
+
       // 1. Check available tables
       const availabilityResponse = await api.get("/api/tables/available", {
         params: {
@@ -125,29 +127,38 @@ function Reservation() {
 
       const availableTables = availabilityResponse.data;
 
-      // 2. Stop if no table is available
+      // 2. Stop if no suitable table is available
       if (!availableTables || availableTables.length === 0) {
         setError(t.noTable);
         return;
       }
 
-      // 3. Use the first available suitable table
+      // 3. Use the first suitable available table
       const selectedTable = availableTables[0];
 
-      // 4. Create reservation
-      await api.post("/api/reservations", {
-        customerId: user.customerId,
-        tableId: selectedTable.id,
-        date: formData.date,
-        time: formData.time,
-        numberOfGuests: Number(formData.guests),
-        specialRequests: formData.specialRequests,
-      });
+      // 4. Create authenticated reservation
+      await api.post(
+        "/api/reservations",
+        {
+          customerId: user.customerId,
+          tableId: selectedTable.id,
+          date: formData.date,
+          time: formData.time,
+          numberOfGuests: Number(formData.guests),
+          specialRequests: formData.specialRequests,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        },
+      );
 
       setSubmitted(true);
     } catch (err) {
       console.error("Reservation API error:", err);
-      setError(t.error);
+
+      setError(err.response?.data?.message || t.error);
     } finally {
       setLoading(false);
     }

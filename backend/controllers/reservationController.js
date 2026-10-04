@@ -21,6 +21,16 @@ export const createReservation = async (req, res) => {
       });
     }
 
+    // Customer can only create a reservation for their own account
+    if (
+      req.user.role !== "admin" &&
+      Number(req.user.customerId) !== Number(customerId)
+    ) {
+      return res.status(403).json({
+        message: "You can only create a reservation for your own account",
+      });
+    }
+
     const guests = Number(numberOfGuests);
 
     if (!Number.isInteger(guests) || guests < 1) {
@@ -201,7 +211,6 @@ export const getAllReservations = async (req, res) => {
     });
   }
 };
-
 // GET /api/reservations/customer/:customerId
 export const getCustomerReservations = async (req, res) => {
   try {
@@ -210,6 +219,17 @@ export const getCustomerReservations = async (req, res) => {
     if (!Number.isInteger(customerId) || customerId < 1) {
       return res.status(400).json({
         message: "Invalid customer ID",
+      });
+    }
+
+    // Customers can only view their own reservations.
+    // Admins may view any customer's reservations.
+    if (
+      req.user.role !== "admin" &&
+      Number(req.user.customerId) !== customerId
+    ) {
+      return res.status(403).json({
+        message: "You can only view your own reservations",
       });
     }
 

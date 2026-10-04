@@ -21,6 +21,8 @@ const router = express.Router();
  * @apiName CreateReservation
  * @apiGroup Reservations
  *
+ * @apiHeader {String} Authorization Bearer JWT token.
+ *
  * @apiBody {Number} customerId Customer ID.
  * @apiBody {Number} tableId Restaurant table ID.
  * @apiBody {String} date Reservation date.
@@ -30,8 +32,12 @@ const router = express.Router();
  *
  * @apiSuccess (201) {Number} id Reservation ID.
  * @apiSuccess (201) {String} status Reservation status.
+ *
+ * @apiError (400) BadRequest Invalid reservation data.
+ * @apiError (401) Unauthorized Authentication token required or invalid.
+ * @apiError (403) Forbidden Customer ID does not match authenticated user.
  */
-router.post("/", createReservation);
+router.post("/", authenticateToken, createReservation);
 
 /**
  * @api {get} /api/reservations Get all active reservations
@@ -49,6 +55,10 @@ router.get("/", authenticateToken, requireAdmin, getAllReservations);
  *
  * @apiHeader {String} Authorization Bearer JWT token.
  * @apiParam {Number} customerId Customer ID.
+ *
+ * @apiError (400) BadRequest Invalid customer ID.
+ * @apiError (401) Unauthorized Authentication token required or invalid.
+ * @apiError (403) Forbidden Customers can only view their own reservations.
  */
 router.get("/customer/:customerId", authenticateToken, getCustomerReservations);
 
