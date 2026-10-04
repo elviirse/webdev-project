@@ -91,7 +91,7 @@ router.get("/customer/:customerId", authenticateToken, getCustomerOrders);
  * @apiError (404) NotFound Order not found.
  * @apiError (500) ServerError Failed to fetch order.
  */
-router.get("/:id", getOrderById);
+router.get("/:id", authenticateToken, getOrderById);
 
 /**
  * @api {patch} /api/orders/:id/status Update order status

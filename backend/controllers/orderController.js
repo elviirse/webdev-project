@@ -273,6 +273,16 @@ export const getOrderById = async (req, res) => {
         message: "Order not found",
       });
     }
+    // Customers can only view their own orders.
+    // Admins can view any order.
+    if (
+      req.user.role !== "admin" &&
+      Number(req.user.customerId) !== Number(orders[0].customerId)
+    ) {
+      return res.status(403).json({
+        message: "You can only view your own order",
+      });
+    }
 
     const [items] = await pool.query(
       `SELECT

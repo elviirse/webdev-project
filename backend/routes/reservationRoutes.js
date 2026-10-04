@@ -107,6 +107,6 @@ router.patch(
  *
  * @apiParam {Number} id Reservation ID.
  */
-router.get("/:id", getReservationById);
+router.get("/:id", authenticateToken, getReservationById);
 
 export default router;

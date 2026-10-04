@@ -298,6 +298,16 @@ export const getReservationById = async (req, res) => {
         message: "Reservation not found",
       });
     }
+    // Customers can only view their own reservations.
+    // Admins can view any reservation.
+    if (
+      req.user.role !== "admin" &&
+      Number(req.user.customerId) !== Number(rows[0].customerId)
+    ) {
+      return res.status(403).json({
+        message: "You can only view your own reservation",
+      });
+    }
 
     res.json(rows[0]);
   } catch (error) {
