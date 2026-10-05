@@ -1,23 +1,38 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import api from "../services/api.js";
+import { useLanguage } from "../LanguageContext.jsx";
 
 function FineDining() {
+  const { language } = useLanguage();
+
   const [menuData, setMenuData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [addedItemId, setAddedItemId] = useState(null);
 
-  const categories = [
-    { key: "amuse_bouche", title: "Amuse-Bouche" },
-    { key: "starter", title: "Starters" },
-    { key: "soup", title: "Soups" },
-    { key: "main", title: "Main Courses" },
-    { key: "side", title: "Sides" },
-    { key: "dessert", title: "Desserts" },
-    { key: "drink", title: "Signature Non-Alcoholic Drinks" },
-    { key: "tasting_menu", title: "Tasting Menus" },
-  ];
+  const categories =
+    language === "fi"
+      ? [
+          { key: "amuse_bouche", title: "Amuse-Bouche" },
+          { key: "starter", title: "Alkuruoat" },
+          { key: "soup", title: "Keitot" },
+          { key: "main", title: "Pääruoat" },
+          { key: "side", title: "Lisukkeet" },
+          { key: "dessert", title: "Jälkiruoat" },
+          { key: "drink", title: "Alkoholittomat erikoisjuomat" },
+          { key: "tasting_menu", title: "Maistelumenut" },
+        ]
+      : [
+          { key: "amuse_bouche", title: "Amuse-Bouche" },
+          { key: "starter", title: "Starters" },
+          { key: "soup", title: "Soups" },
+          { key: "main", title: "Main Courses" },
+          { key: "side", title: "Sides" },
+          { key: "dessert", title: "Desserts" },
+          { key: "drink", title: "Signature Non-Alcoholic Drinks" },
+          { key: "tasting_menu", title: "Tasting Menus" },
+        ];
 
   const addToCart = (dish) => {
     const savedCart = JSON.parse(localStorage.getItem("cart")) || [];
@@ -29,7 +44,10 @@ function FineDining() {
     } else {
       savedCart.push({
         id: dish.id,
-        name: dish.name,
+        name:
+          language === "fi" && dish.nameFi
+            ? dish.nameFi
+            : dish.name,
         price: Number(dish.price),
         quantity: 1,
       });
@@ -51,72 +69,53 @@ function FineDining() {
         setError("");
 
         const response = await api.get("/api/menu/fine-dining");
-
         setMenuData(response.data);
       } catch (err) {
         console.error("Fine Dining API error:", err);
-        setError("Could not load the fine dining menu.");
+
+        setError(
+          language === "fi"
+            ? "Fine Dining -menun lataaminen epäonnistui."
+            : "Could not load the fine dining menu.",
+        );
       } finally {
         setLoading(false);
       }
     };
 
     fetchFineDiningMenu();
-  }, []);
+  }, [language]);
 
   const parseDishDescription = (description = "") => {
-    const ingredientsIndex = description.indexOf("Ingredients:");
+    const ingredientsMatch = description.match(
+      /(?:Ingredients|Ainesosat):\s*(.*?)(?=\s*(?:Dietary|Ruokavalio|Ruokavaliot|Allergens|Allergeenit):|$)/i,
+    );
 
-    const dietaryIndex = description.indexOf("Dietary:");
+    const dietaryMatch = description.match(
+      /(?:Dietary|Ruokavalio|Ruokavaliot):\s*(.*?)(?=\s*(?:Allergens|Allergeenit):|$)/i,
+    );
 
-    const allergensIndex = description.indexOf("Allergens:");
+    const allergensMatch = description.match(
+      /(?:Allergens|Allergeenit):\s*(.*)$/i,
+    );
 
-    let mainDescription = description;
-    let ingredients = "";
-    let dietary = "";
-    let allergens = "";
-
-    const markerIndexes = [
-      ingredientsIndex,
-      dietaryIndex,
-      allergensIndex,
-    ].filter((index) => index >= 0);
-
-    if (markerIndexes.length > 0) {
-      mainDescription = description.slice(0, Math.min(...markerIndexes)).trim();
-    }
-
-    if (ingredientsIndex >= 0) {
-      const end =
-        dietaryIndex > ingredientsIndex
-          ? dietaryIndex
-          : allergensIndex > ingredientsIndex
-            ? allergensIndex
-            : description.length;
-
-      ingredients = description
-        .slice(ingredientsIndex + "Ingredients:".length, end)
-        .trim();
-    }
-
-    if (dietaryIndex >= 0) {
-      const end =
-        allergensIndex > dietaryIndex ? allergensIndex : description.length;
-
-      dietary = description.slice(dietaryIndex + "Dietary:".length, end).trim();
-    }
-
-    if (allergensIndex >= 0) {
-      allergens = description
-        .slice(allergensIndex + "Allergens:".length)
-        .trim();
-    }
+    const mainDescription = description
+      .replace(
+        /(?:Ingredients|Ainesosat):\s*.*?(?=\s*(?:Dietary|Ruokavalio|Ruokavaliot|Allergens|Allergeenit):|$)/i,
+        "",
+      )
+      .replace(
+        /(?:Dietary|Ruokavalio|Ruokavaliot):\s*.*?(?=\s*(?:Allergens|Allergeenit):|$)/i,
+        "",
+      )
+      .replace(/(?:Allergens|Allergeenit):\s*.*$/i, "")
+      .trim();
 
     return {
       mainDescription,
-      ingredients,
-      dietary,
-      allergens,
+      ingredients: ingredientsMatch?.[1]?.trim() || "",
+      dietary: dietaryMatch?.[1]?.trim() || "",
+      allergens: allergensMatch?.[1]?.trim() || "",
     };
   };
 
@@ -125,7 +124,12 @@ function FineDining() {
       <main className="menu-page luxury-menu-page">
         <section className="luxury-menu-header">
           <p className="luxury-menu-eyebrow">NORDIC SPICES</p>
-          <h1>Loading Fine Dining Menu...</h1>
+
+          <h1>
+            {language === "fi"
+              ? "Ladataan Fine Dining -menua..."
+              : "Loading Fine Dining Menu..."}
+          </h1>
         </section>
       </main>
     );
@@ -147,7 +151,9 @@ function FineDining() {
       <section className="luxury-menu-header">
         <p className="luxury-menu-eyebrow">NORDIC SPICES</p>
 
-        <h1>Fine Dining Menu</h1>
+        <h1>
+          {language === "fi" ? "Fine Dining -menu" : "Fine Dining Menu"}
+        </h1>
 
         <div className="luxury-menu-ornament">
           <span></span>
@@ -156,7 +162,9 @@ function FineDining() {
         </div>
 
         <p className="luxury-menu-intro">
-          Finnish ingredients meet Asian flavours in our fine dining experience.
+          {language === "fi"
+            ? "Suomalaiset raaka-aineet kohtaavat aasialaiset maut Fine Dining -elämyksessämme."
+            : "Finnish ingredients meet Asian flavours in our fine dining experience."}
         </p>
       </section>
 
@@ -171,7 +179,10 @@ function FineDining() {
           }
 
           return (
-            <article className="menu-card luxury-day-card" key={category.key}>
+            <article
+              className="menu-card luxury-day-card"
+              key={category.key}
+            >
               <div className="day-heading luxury-day-heading">
                 <div>
                   <span className="day-small-label">FINE DINING</span>
@@ -181,13 +192,30 @@ function FineDining() {
 
               <div className="day-dishes">
                 {dishes.map((dish, index) => {
-                  const { mainDescription, ingredients, dietary, allergens } =
-                    parseDishDescription(dish.description);
+                  const dishName =
+                    language === "fi" && dish.nameFi
+                      ? dish.nameFi
+                      : dish.name;
+
+                  const dishDescription =
+                    language === "fi" && dish.descriptionFi
+                      ? dish.descriptionFi
+                      : dish.description;
+
+                  const {
+                    mainDescription,
+                    ingredients,
+                    dietary,
+                    allergens,
+                  } = parseDishDescription(dishDescription);
 
                   return (
-                    <div className="dish-in-day luxury-dish" key={dish.id}>
+                    <div
+                      className="dish-in-day luxury-dish"
+                      key={dish.id}
+                    >
                       <div className="dish-title-row">
-                        <h3>{dish.name}</h3>
+                        <h3>{dishName}</h3>
 
                         <strong className="dish-price">
                           €{Number(dish.price).toFixed(2)}
@@ -195,35 +223,49 @@ function FineDining() {
                       </div>
 
                       {mainDescription && (
-                        <p className="dish-description">{mainDescription}</p>
+                        <p className="dish-description">
+                          {mainDescription}
+                        </p>
                       )}
 
                       {ingredients && (
                         <p className="dish-description">
-                          <strong>Ingredients:</strong> {ingredients}
+                          <strong>
+                            {language === "fi"
+                              ? "Ainesosat:"
+                              : "Ingredients:"}
+                          </strong>{" "}
+                          {ingredients}
                         </p>
                       )}
 
                       {dietary && (
                         <p className="dish-description">
-                          <strong>Dietary:</strong> {dietary}
+                          <strong>
+                            {language === "fi"
+                              ? "Ruokavaliot:"
+                              : "Dietary:"}
+                          </strong>{" "}
+                          {dietary}
                         </p>
                       )}
 
                       {allergens && (
                         <p className="dish-description">
-                          <strong>Allergens:</strong> {allergens}
+                          <strong>
+                            {language === "fi"
+                              ? "Allergeenit:"
+                              : "Allergens:"}
+                          </strong>{" "}
+                          {allergens}
                         </p>
                       )}
 
                       <div className="menu-meta">
                         <div className="dietary-tags">
                           {dish.glutenFree === 1 && <span>GF</span>}
-
                           {dish.lactoseFree === 1 && <span>LF</span>}
-
                           {dish.vegetarian === 1 && <span>V</span>}
-
                           {dish.vegan === 1 && <span>VG</span>}
                         </div>
                       </div>
@@ -234,7 +276,9 @@ function FineDining() {
                             to={`/menu/${dish.id}`}
                             className="details-link luxury-details-link"
                           >
-                            VIEW DISH DETAILS
+                            {language === "fi"
+                              ? "NÄYTÄ ANNOKSEN TIEDOT"
+                              : "VIEW DISH DETAILS"}
                             <span>→</span>
                           </Link>
 
@@ -244,8 +288,12 @@ function FineDining() {
                             onClick={() => addToCart(dish)}
                           >
                             {addedItemId === dish.id
-                              ? "Added ✓"
-                              : "Add to cart"}
+                              ? language === "fi"
+                                ? "Lisätty ✓"
+                                : "Added ✓"
+                              : language === "fi"
+                                ? "Lisää ostoskoriin"
+                                : "Add to cart"}
                             <span>+</span>
                           </button>
                         </>
@@ -263,15 +311,15 @@ function FineDining() {
 
       <section className="luxury-menu-header">
         <p className="luxury-menu-intro">
-          Please inform our staff of any allergies or dietary requirements.
-          Ingredients and preparation may vary, and cross-contact cannot always
-          be excluded.
+          {language === "fi"
+            ? "Ilmoitathan henkilökunnalle mahdollisista allergioista tai erityisruokavalioista. Ainesosat ja valmistustavat voivat vaihdella, eikä ristikontaminaatiota voida aina täysin sulkea pois."
+            : "Please inform our staff of any allergies or dietary requirements. Ingredients and preparation may vary, and cross-contact cannot always be excluded."}
         </p>
 
         <p className="luxury-menu-intro">
-          * Dietary classifications should be confirmed against the final
-          recipe, ingredients and kitchen preparation before the menu is
-          published.
+          {language === "fi"
+            ? "* Ruokavaliomerkinnät tulee varmistaa lopullisen reseptin, ainesosien ja keittiön valmistustapojen perusteella ennen menun julkaisemista."
+            : "* Dietary classifications should be confirmed against the final recipe, ingredients and kitchen preparation before the menu is published."}
         </p>
       </section>
     </main>
