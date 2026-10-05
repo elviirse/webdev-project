@@ -44,21 +44,18 @@ function Restaurant() {
       weekdays: "Monday – Friday",
       weekend: "Saturday – Sunday: Closed",
       location: "Location",
-      address: "Restaurant address will be added here.",
+      address: "",
       contact: "Contact",
       email: "Email",
       phone: "Phone",
       gettingHere: "GETTING HERE",
       transport: "Public Transport",
-      transportInfo:
-        "Nearby public transport stops from HSL are shown using the Digitransit Open API.",
     },
 
     fi: {
       visit: "TERVETULOA",
       title: "Nordic Spices",
-      intro:
-        "Lähimmät HSL-pysäkit näytetään Digitransitin avoimen rajapinnan avulla.",
+
       hours: "Aukioloajat",
       weekdays: "Maanantai – perjantai",
       weekend: "Lauantai – sunnuntai: Suljettu",
@@ -199,12 +196,6 @@ function Restaurant() {
                 </div>
               </div>
             ))}
-
-            <p className="restaurant-transport-text">
-              {language === "fi"
-                ? "Reaaliaikaiset sijaintitiedot: HSL / Digitransit Open API"
-                : "Live location data: HSL / Digitransit Open API"}
-            </p>
           </div>
         )}
 
@@ -212,6 +203,9 @@ function Restaurant() {
           src="https://www.google.com/maps?q=Leiritie+1,+01600+Vantaa&output=embed"
           title="Restaurant location"
           loading="lazy"
+          width="100%"
+          height="380"
+          style={{ border: 0, maxWidth: "700px" }}
         ></iframe>
       </section>
     </main>
