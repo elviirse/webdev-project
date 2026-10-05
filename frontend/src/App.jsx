@@ -2,7 +2,7 @@ import Footer from "./components/Footer.jsx";
 import Restaurant from "./pages/Restaurant.jsx";
 import Reservation from "./pages/Reservation.jsx";
 import { Routes, Route } from "react-router-dom";
-import Navbar from "./components/navbar.jsx";
+import Navbar from "./components/Navbar.jsx";
 import Home from "./pages/Home.jsx";
 import Menu from "./pages/Menu.jsx";
 import FineDining from "./pages/FineDining.jsx";
