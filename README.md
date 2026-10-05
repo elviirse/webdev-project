@@ -1,10 +1,20 @@
-# webdev-project
-
 # Nordic Spices
 
 Nordic Spices is a full-stack restaurant web application developed as part of the Web Development Project course.
 
 The application combines Nordic ingredients with Asian-inspired cuisine and provides lunch and fine-dining menus, customer authentication, table reservations, pickup ordering, customer account features, and an admin dashboard.
+
+## Live Application
+
+Frontend:
+
+https://nordic-spices-web.onrender.com/
+
+Backend API:
+
+https://webdev-project-mgyi.onrender.com/
+
+The React frontend and Node.js/Express backend are deployed on Render. The production MySQL database is hosted on Aiven.
 
 ## Technologies
 
@@ -28,10 +38,15 @@ The application combines Nordic ingredients with Asian-inspired cuisine and prov
 - Vitest
 - Supertest
 
+### Deployment
+
+- Render - frontend and backend hosting
+- Aiven - production MySQL database
+
 ### External API
 
 - HSL / Digitransit Open API
-- Used to display nearby public transport stops on the Restaurant page.
+- Used to display nearby public transport stops on the Restaurant page
 
 ## Main Features
 
@@ -41,7 +56,7 @@ The application combines Nordic ingredients with Asian-inspired cuisine and prov
 - Login and logout
 - View customer account
 - Browse weekday lunch menu
-- Browse fine-dining / à la carte menu
+- Browse fine-dining / a la carte menu
 - View individual dish details
 - View dietary and allergen information
 - Add dishes to cart
@@ -69,18 +84,18 @@ The application combines Nordic ingredients with Asian-inspired cuisine and prov
 
 ```text
 webdev-project/
-├── backend/
-│   ├── controllers/
-│   ├── routes/
-│   ├── tests/
-│   ├── app.js
-│   └── server.js
-├── database-sakib/
-├── frontend/
-│   ├── src/
-│   ├── tests/
-│   └── playwright.config.js
-└── README.md
+|-- backend/
+|   |-- controllers/
+|   |-- routes/
+|   |-- tests/
+|   |-- app.js
+|   `-- server.js
+|-- database-sakib/
+|-- frontend/
+|   |-- src/
+|   |-- tests/
+|   `-- playwright.config.js
+`-- README.md
 ```
 
 ## Installation
@@ -99,28 +114,55 @@ cd backend
 npm install
 ```
 
-Create a `.env` file inside the `backend` directory.
+### Environment Variables
 
-Example:
+Create a `.env` file inside the `backend` directory:
 
 ```env
-DB_HOST=your_database_host
-DB_USER=your_database_user
-DB_PASSWORD=your_database_password
-DB_NAME=your_database_name
+DB_HOST=database_host
+DB_PORT=3306
+DB_USER=database_user
+DB_PASSWORD=password
+DB_NAME=database_name
+DB_SSL=false
+
 JWT_SECRET=your_jwt_secret
 DIGITRANSIT_API_KEY=your_digitransit_api_key
 ```
 
-Do not commit the `.env` file or API keys to Git.
+For the deployed production environment, the application uses an Aiven MySQL database with SSL enabled:
+
+```env
+DB_HOST=aiven_database_host
+DB_PORT=aiven_database_port
+DB_USER=aiven_database_user
+DB_PASSWORD=aiven_database_password
+DB_NAME=defaultdb
+DB_SSL=true
+
+JWT_SECRET=your_secure_jwt_secret
+DIGITRANSIT_API_KEY=your_digitransit_api_key
+```
+
+The frontend production environment uses:
+
+```env
+VITE_API_URL=https://webdev-project-mgyi.onrender.com
+```
+
+Environment variables containing passwords, JWT secrets, and API keys must not be committed to GitHub. Production environment variables are configured securely in the hosting platform.
+
+````
+
+Do not commit the `.env` file, passwords, JWT secrets, or API keys to Git.
 
 Start the backend:
 
 ```bash
 npm run dev
-```
+````
 
-Backend runs at:
+The local backend runs at:
 
 ```text
 http://127.0.0.1:3000
@@ -137,6 +179,8 @@ npm run dev
 ```
 
 The frontend development server runs through Vite.
+
+For local development, the frontend uses the local backend by default. In production, `VITE_API_URL` is configured to use the deployed Render backend.
 
 ## REST API
 
@@ -186,7 +230,7 @@ The backend communicates with Digitransit so that the API subscription key is no
 
 ### Backend Integration Tests
 
-Integration tests use Vitest and Supertest.
+Integration/API tests use Vitest and Supertest.
 
 Run:
 
@@ -195,7 +239,22 @@ cd backend
 npm test
 ```
 
-The project currently contains 7 backend integration tests covering API availability, menu endpoints, individual menu retrieval, and protected endpoints.
+The project contains 7 backend integration tests covering:
+
+- API availability
+- Menu retrieval
+- Lunch menu retrieval
+- Fine-dining menu retrieval
+- Individual menu item retrieval
+- Protected menu operations
+- Protected reservation operations
+
+Current result:
+
+```text
+Test Files  1 passed (1)
+Tests       7 passed (7)
+```
 
 ### End-to-End Tests
 
@@ -208,7 +267,39 @@ cd frontend
 npm run test:e2e
 ```
 
-The project currently contains 7 E2E tests covering the home page, lunch menu, fine-dining page, reservation page, login, registration, and protected account behaviour.
+The project contains 7 E2E tests covering:
+
+- Home page
+- Lunch menu
+- Fine-dining menu
+- Reservation page
+- Login
+- Registration
+- Protected account behaviour
+
+Current result:
+
+```text
+Tests  7 passed
+```
+
+## Technical Validation
+
+The deployed application was tested with Google Lighthouse.
+
+Lighthouse results:
+
+| Category       | Score |
+| -------------- | ----: |
+| Performance    |    69 |
+| Accessibility  |    95 |
+| Best Practices |   100 |
+| SEO            |    91 |
+
+The deployed frontend was also checked using the W3C HTML and CSS validation services.
+
+- HTML validation: no validation errors; informational messages only
+- CSS validation: no errors found (CSS Level 3 + SVG)
 
 ## Production Build
 
@@ -235,6 +326,8 @@ Main data includes:
 - Restaurant tables
 - Opening hours
 
+The production MySQL database is hosted on Aiven and is accessed securely by the deployed backend using environment variables and SSL.
+
 ## Security
 
 The application includes:
@@ -246,19 +339,53 @@ The application includes:
 - Protected order operations
 - Protected reservation operations
 - Environment variables for secrets and API keys
+- Production database SSL configuration
+- Backend proxy for the Digitransit API key
+
+## Deployment Architecture
+
+```text
+User / Browser
+      |
+      v
+Render Static Site
+React Frontend
+      |
+      v
+Render Web Service
+Node.js / Express REST API
+      |
+      v
+Aiven MySQL Database
+
+Backend REST API
+      |
+      v
+HSL / Digitransit API
+```
 
 ## Authors
 
 Web Development Project team:
 
-- Khusbu — Backend REST API, ordering, reservations, authentication/admin integration, testing and API integration
-- Riya — Frontend
-- Elviira — Authentication and admin
-- Leo — Testing, Open API, deployment and documentation
-- Sakib — Database
+- Khusbu - Backend REST API, authentication, customer accounts, admin dashboard and integration, menu management, ordering and pickup system, reservations, HSL / Digitransit API integration, backend integration testing, E2E testing, deployment, database migration, security, API documentation, and project documentation
+- Riya - Frontend development and user interface
+- Sakib - Initial database development
 
 ## Repository
 
 GitHub repository:
 
 https://github.com/elviirse/webdev-project
+
+## Repository
+
+Original team repository:
+
+https://github.com/elviirse/webdev-project
+
+Development fork:
+
+https://github.com/khushbu7763/webdev-project
+
+The final development, integration, testing, and deployment work was completed on the `menu-update` branch.
