@@ -8,11 +8,11 @@ The application combines Nordic ingredients with Asian-inspired cuisine and prov
 
 Frontend:
 
-https://nordic-spices-web.onrender.com/
+https://webdev-nordic-spices.onrender.com
 
 Backend API:
 
-https://webdev-project-mgyi.onrender.com/
+https://webdev-nordic-spices-api.onrender.com
 
 The React frontend and Node.js/Express backend are deployed on Render. The production MySQL database is hosted on Aiven.
 
@@ -147,12 +147,10 @@ DIGITRANSIT_API_KEY=your_digitransit_api_key
 The frontend production environment uses:
 
 ```env
-VITE_API_URL=https://webdev-project-mgyi.onrender.com
+VITE_API_URL=https://webdev-nordic-spices-api.onrender.com
 ```
 
 Environment variables containing passwords, JWT secrets, and API keys must not be committed to GitHub. Production environment variables are configured securely in the hosting platform.
-
-````
 
 Do not commit the `.env` file, passwords, JWT secrets, or API keys to Git.
 
@@ -160,7 +158,7 @@ Start the backend:
 
 ```bash
 npm run dev
-````
+```
 
 The local backend runs at:
 
@@ -378,14 +376,4 @@ GitHub repository:
 
 https://github.com/elviirse/webdev-project
 
-## Repository
-
-Original team repository:
-
-https://github.com/elviirse/webdev-project
-
-Development fork:
-
-https://github.com/khushbu7763/webdev-project
-
-The final development, integration, testing, and deployment work was completed on the `menu-update` branch.
+The final integrated and deployed version of the project is available on the `main` branch.
